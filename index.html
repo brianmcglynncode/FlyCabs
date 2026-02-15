@@ -192,9 +192,14 @@
                     <div id="debug-console"
                         style="margin-top:10px; font-family:monospace; font-size:10px; color:#ff4444; background:#eee; padding:5px; border-radius:4px; max-height:100px; overflow-y:auto; display:none;">
                     </div>
-                    <button onclick="window.nuclearReset()"
-                        style="margin-top:5px; font-size:10px; border:none; background:none; text-decoration:underline;">Reset
-                        App / Fix</button>
+                    <div style="display:flex; gap:10px; margin-top:5px;">
+                        <button onclick="window.forceResubscribe()"
+                            style="font-size:10px; border:none; background:none; text-decoration:underline; color:blue;">Renew
+                            Push</button>
+                        <button onclick="window.nuclearReset()"
+                            style="font-size:10px; border:none; background:none; text-decoration:underline;">Reset
+                            App</button>
+                    </div>
                     <!-- Hidden File Input -->
                     <input type="file" id="driver-file-input" accept="image/*" style="display: none;"
                         onchange="window.handleProfileUpload(this, 'driver')">
@@ -265,7 +270,7 @@
 
             <!-- Version Info (Hidden Troubleshooting) -->
             <div class="app-version-info">
-                <span>Version 23.0.43 (SW Log Bridge)</span>
+                <span>Version 23.0.44 (Ghost Sub Fix)</span>
                 <button onclick="window.nuclearReset()" class="reset-link">Reset App Data & Update</button>
             </div>
         </main>

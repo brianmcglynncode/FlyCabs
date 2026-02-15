@@ -687,10 +687,17 @@ window.acceptRequest = async function (index) {
 
 // Nuclear Reset: Clear SW and Caches to force update on iOS
 window.nuclearReset = async function () {
-    if (confirm("This will clear app data and force the latest update. Continue?")) {
+    if (confirm("Reset everything? This will clear all data and reload.")) {
         console.log("[FlyCabs] Starting nuclear reset...");
 
-        // 1. Unregister all service workers
+        // 1. Unsubscribe Push
+        if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.ready;
+            const sub = await reg.pushManager.getSubscription();
+            if (sub) await sub.unsubscribe();
+        }
+
+        // 2. Unregister all service workers
         if ('serviceWorker' in navigator) {
             const registrations = await navigator.serviceWorker.getRegistrations();
             for (let registration of registrations) {
@@ -698,7 +705,7 @@ window.nuclearReset = async function () {
             }
         }
 
-        // 2. Clear all caches
+        // 3. Clear all caches
         if ('caches' in window) {
             const keys = await caches.keys();
             for (let key of keys) {
@@ -706,18 +713,34 @@ window.nuclearReset = async function () {
             }
         }
 
-        // 3. Clear storage
+        // 4. Clear storage
         localStorage.clear();
         sessionStorage.clear();
 
-        // 4. Force reload from server
+        // 5. Force reload from server
         window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
+    }
+};
+
+window.forceResubscribe = async function () {
+    console.log("Forcing Resubscribe...");
+    try {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) {
+            console.log("Unsubscribing old...");
+            await sub.unsubscribe();
+        }
+        await window.subscribeUserToPush();
+        alert("Resubscribed! Try Test Push now.");
+    } catch (e) {
+        alert("Error: " + e.message);
     }
 };
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.43";
+    const APP_VERSION = "23.0.44";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');

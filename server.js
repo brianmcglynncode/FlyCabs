@@ -69,25 +69,37 @@ app.post('/api/push-test', (req, res) => {
     const { driverId } = req.body;
     console.log(`[Server] 🧪 Test Push Requested for ${driverId}`);
 
-    // Find the subscription
-    const target = pushSubscriptions.find(s => s.id === driverId);
+    // Find ALL subscriptions for this driver (handle ghost/stale subs)
+    const targets = pushSubscriptions.filter(s => s.id === driverId);
 
-    if (target) {
+    if (targets.length > 0) {
+        console.log(`[Server] Found ${targets.length} subs for ${driverId}. Blasting all...`);
         const payload = JSON.stringify({
             title: 'FlyCabs Notifications Working! 🔔',
             body: 'You are now ready to receive lift requests.',
             icon: '/icon.png'
         });
 
-        webpush.sendNotification(target.sub, payload)
-            .then(() => {
-                console.log(`[Server] Test Push SENT to ${driverId}`);
-                res.json({ success: true });
-            })
-            .catch(err => {
-                console.error(`[Server] Test Push FAILED:`, err);
-                res.status(500).json({ success: false, error: err.message });
-            });
+        let successCount = 0;
+        const promises = targets.map(t => {
+            return webpush.sendNotification(t.sub, payload)
+                .then(() => {
+                    console.log(`[Server] Test Push SENT to sub ${t.sub.endpoint.slice(-8)}`);
+                    successCount++;
+                })
+                .catch(err => {
+                    console.error(`[Server] Test Push FAILED to sub ${t.sub.endpoint.slice(-8)}:`, err.statusCode);
+                    // 410 Gone = Dead Sub
+                    if (err.statusCode === 410 || err.statusCode === 404) {
+                        pushSubscriptions = pushSubscriptions.filter(s => s.sub.endpoint !== t.sub.endpoint);
+                    }
+                });
+        });
+
+        Promise.all(promises).then(() => {
+            res.json({ success: true, count: successCount, attempts: targets.length });
+        });
+
     } else {
         console.log(`[Server] Test Push: No subscription found for ${driverId}`);
         res.status(404).json({ success: false, error: "No subscription found" });
