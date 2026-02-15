@@ -1,5 +1,5 @@
 /**
- * FlyCabs Core Logic - Production v18 (Network-First)
+ * FlyCabs Core Logic - Production v19 (Scroll Fix)
  */
 
 // Global State
@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     const data = await response.json();
                     const serverVersion = data.version;
-                    const localVersion = "18.0.0"; // MUST match APP_VERSION below
+                    const localVersion = "19.0.0"; // MUST match APP_VERSION below
 
                     if (serverVersion !== localVersion) {
                         console.log(`[FlyCabs] Version mismatch! Server: ${serverVersion}, Local: ${localVersion}. Forcing reload...`);
