@@ -717,7 +717,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.36";
+    const APP_VERSION = "23.0.37";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -827,6 +827,40 @@ document.addEventListener('DOMContentLoaded', () => {
         inviteBtn.onclick = () => {
             window.open(`https://wa.me/?text=${encodeURIComponent("Hey! Join my trusted circle on FlyCabs for lifts.")}`, '_blank');
         };
+    }
+
+    // Manual Notification Trigger for iOS Debugging
+    const enableNotifsBtn = document.getElementById('enable-notifications-btn');
+    if (enableNotifsBtn) {
+        enableNotifsBtn.addEventListener('click', async () => {
+            console.log("[FlyCabs] Enable Notifications Clicked");
+
+            // 1. Check if installed (iOS requires standalone for push)
+            if (!isStandalone && isIOS) {
+                document.getElementById('ios-guide').classList.remove('hidden');
+                return;
+            }
+
+            // 2. Request Permission
+            try {
+                const permission = await Notification.requestPermission();
+                console.log(`[FlyCabs] Permission Result: ${permission}`);
+
+                if (permission === 'granted') {
+                    await window.subscribeUserToPush();
+                    alert("Notifications Enabled! 🔔");
+                    enableNotifsBtn.style.display = 'none';
+                } else {
+                    alert("Notifications Blocked. Please go to iPhone Settings > FlyCabs > Notifications and enable them.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Error enabling notifications: " + e.message);
+            }
+        });
+
+        // Hide if already granted
+        if (Notification.permission === 'granted') enableNotifsBtn.style.display = 'none';
     }
 
     if (payBtn) {
