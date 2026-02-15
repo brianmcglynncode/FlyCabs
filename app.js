@@ -717,7 +717,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.37";
+    const APP_VERSION = "23.0.38";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -847,17 +847,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log(`[FlyCabs] Permission Result: ${permission}`);
 
                 if (permission === 'granted') {
-                    await window.subscribeUserToPush();
-                    alert("Notifications Enabled! 🔔");
-                    enableNotifsBtn.style.display = 'none';
-                } else {
-                    alert("Notifications Blocked. Please go to iPhone Settings > FlyCabs > Notifications and enable them.");
+                    if (permission === 'granted') {
+                        await window.subscribeUserToPush();
+
+                        // Trigger Test Notification
+                        const driverId = window.FlyCabsState.myDriverId;
+                        console.log(`[FlyCabs] Requesting Test Push for ${driverId}...`);
+
+                        try {
+                            await fetch('/api/push-test', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ driverId })
+                            });
+                            alert("Notifications Enabled! 🔔\nSending test message now...");
+                        } catch (e) {
+                            console.error("Test push failed", e);
+                            alert("Notifications Enabled! 🔔");
+                        }
+
+                        enableNotifsBtn.style.display = 'none';
+                    } else {
+                        alert("Notifications Blocked. Please go to iPhone Settings > FlyCabs > Notifications and enable them.");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Error enabling notifications: " + e.message);
                 }
-            } catch (e) {
-                console.error(e);
-                alert("Error enabling notifications: " + e.message);
-            }
-        });
+            });
 
         // Hide if already granted
         if (Notification.permission === 'granted') enableNotifsBtn.style.display = 'none';

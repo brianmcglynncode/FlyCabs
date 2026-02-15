@@ -64,6 +64,36 @@ app.post('/api/subscribe', (req, res) => {
     console.log(`[Server] New Push Sub stored via ${driverId || 'anon'}`);
 });
 
+// Test Push Endpoint
+app.post('/api/push-test', (req, res) => {
+    const { driverId } = req.body;
+    console.log(`[Server] 🧪 Test Push Requested for ${driverId}`);
+
+    // Find the subscription
+    const target = pushSubscriptions.find(s => s.id === driverId);
+
+    if (target) {
+        const payload = JSON.stringify({
+            title: 'FlyCabs Notifications Working! 🔔',
+            body: 'You are now ready to receive lift requests.',
+            icon: '/icon.png'
+        });
+
+        webpush.sendNotification(target.sub, payload)
+            .then(() => {
+                console.log(`[Server] Test Push SENT to ${driverId}`);
+                res.json({ success: true });
+            })
+            .catch(err => {
+                console.error(`[Server] Test Push FAILED:`, err);
+                res.status(500).json({ success: false, error: err.message });
+            });
+    } else {
+        console.log(`[Server] Test Push: No subscription found for ${driverId}`);
+        res.status(404).json({ success: false, error: "No subscription found" });
+    }
+});
+
 // Trigger Notification Helper
 const sendPushToDrivers = (message) => {
     console.log(`[Server] 📣 Sending Push to ${pushSubscriptions.length} drivers: ${message}`);
