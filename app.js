@@ -110,8 +110,41 @@ window.acceptRequest = function (index) {
     window.renderRequests();
 };
 
+// Nuclear Reset: Clear SW and Caches to force update on iOS
+window.nuclearReset = async function () {
+    if (confirm("This will clear app data and force the latest update. Continue?")) {
+        console.log("[FlyCabs] Starting nuclear reset...");
+
+        // 1. Unregister all service workers
+        if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (let registration of registrations) {
+                await registration.unregister();
+            }
+        }
+
+        // 2. Clear all caches
+        if ('caches' in window) {
+            const keys = await caches.keys();
+            for (let key of keys) {
+                await caches.delete(key);
+            }
+        }
+
+        // 3. Clear storage
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // 4. Force reload from server
+        window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
+    }
+};
+
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
+    const APP_VERSION = "17.0.0";
+    console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
+
     const roleToggle = document.getElementById('role-toggle');
     const statusBulb = document.getElementById('status-bulb');
     const broadcastModal = document.getElementById('request-modal');
@@ -170,7 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
     installCards.forEach(card => {
         const btn = card.querySelector('.install-trigger-btn');
         btn.addEventListener('click', async () => {
-            console.log("[FlyCabs] Install button clicked. Handing for iOS:", isIOS);
             if (isIOS) {
                 if (iosGuide) iosGuide.classList.remove('hidden');
             } else if (window.FlyCabsState.deferredPrompt) {
@@ -184,20 +216,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Integrations Fix (Re-added with direct selectors)
+    // Integrations Fix
     const inviteBtn = document.getElementById('whatsapp-invite');
     const payBtn = document.getElementById('payment-btn');
 
     if (inviteBtn) {
         inviteBtn.onclick = () => {
-            console.log("[FlyCabs] WhatsApp Invite triggered");
             window.open(`https://wa.me/?text=${encodeURIComponent("Hey! Join my trusted circle on FlyCabs for lifts.")}`, '_blank');
         };
     }
 
     if (payBtn) {
         payBtn.onclick = () => {
-            console.log("[FlyCabs] Revolut Payment triggered");
             window.open(`https://revolut.me/flycabs-demo`, '_blank');
         };
     }
@@ -205,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // SW Update Logic (Hardened)
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-            console.log("[FlyCabs] New version detected! Reloading...");
             window.location.reload();
         });
 
@@ -213,7 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const checkUpdates = async () => {
             const registration = await navigator.serviceWorker.ready;
             if (registration) {
-                console.log("[FlyCabs] Checking for updates...");
                 registration.update();
             }
         };
@@ -223,9 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.visibilityState === 'visible') checkUpdates();
         });
     }
-
-    const APP_VERSION_V16 = "16.0.0";
-    console.log(`[FlyCabs] Initializing version ${APP_VERSION_V16}`);
 
     window.updateView();
 });
