@@ -1,9 +1,6 @@
 /**
- * FlyCabs Core Logic - Robust v13
+ * FlyCabs Core Logic - Production v17
  */
-
-const APP_VERSION = "15.0.0";
-console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
 // Global State
 window.FlyCabsState = {
