@@ -139,7 +139,7 @@
 
             <!-- Version Info (Hidden Troubleshooting) -->
             <div class="app-version-info">
-                <span>Version 17.0.0</span>
+                <span>Version 18.0.0 (Network-First)</span>
                 <button onclick="window.nuclearReset()" class="reset-link">Reset App Data & Update</button>
             </div>
         </main>
@@ -221,7 +221,8 @@
     <!-- PWA Registration -->
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js');
+            // Force fresh registration to break cache loops
+            navigator.serviceWorker.register('./sw.js?v=' + Date.now());
         }
     </script>
     <script src="app.js"></script>

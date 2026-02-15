@@ -1,5 +1,5 @@
 /**
- * FlyCabs Core Logic - Production v17
+ * FlyCabs Core Logic - Production v18 (Network-First)
  */
 
 // Global State
@@ -229,17 +229,41 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // SW Update Logic (Hardened)
+    // SW Update Logic (Network-First & Version Polling)
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log("[FlyCabs] New version detected! Reloading...");
             window.location.reload();
         });
 
-        // Aggressively check for updates when user returns to app
         const checkUpdates = async () => {
+            // 1. Check Service Worker
             const registration = await navigator.serviceWorker.ready;
             if (registration) {
                 registration.update();
+            }
+
+            // 2. Poll version.json (Bypass Cache)
+            try {
+                const response = await fetch(`./version.json?t=${Date.now()}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const serverVersion = data.version;
+                    const localVersion = "18.0.0"; // MUST match APP_VERSION below
+
+                    if (serverVersion !== localVersion) {
+                        console.log(`[FlyCabs] Version mismatch! Server: ${serverVersion}, Local: ${localVersion}. Forcing reload...`);
+
+                        // Clear cache and reload
+                        if ('caches' in window) {
+                            const keys = await caches.keys();
+                            for (let key of keys) await caches.delete(key);
+                        }
+                        window.location.reload(true);
+                    }
+                }
+            } catch (e) {
+                console.error("[FlyCabs] Version check failed:", e);
             }
         };
 
@@ -247,7 +271,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') checkUpdates();
         });
+
+        // Initial check on load
+        setTimeout(checkUpdates, 1000);
     }
+
 
     window.updateView();
 });
