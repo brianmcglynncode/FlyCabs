@@ -56,32 +56,39 @@
                     </div>
                 </div>
 
-                <div class="available-drivers">
-                    <h3 class="section-title">Available Drivers</h3>
-                    <div id="driver-list" class="card-grid">
-                        <!-- Drivers injected here -->
-                        <div class="empty-state">
-                            <p>No drivers active right now. Check back soon!</p>
+                <!-- Updated Drivers Nearby Summary -->
+                <div class="available-drivers-summary">
+                    <div class="summary-card" onclick="window.showDriverRoster()">
+                        <div class="summary-info">
+                            <span class="status-dot pulse"></span>
+                            <span id="drivers-online-count">0 Drivers Online</span>
                         </div>
+                        <span class="view-all">View All →</span>
                     </div>
                 </div>
 
-                <!-- Lift Request Modal/Panel -->
+                <div class="broadcast-section">
+                    <button id="broadcast-request-btn" class="broadcast-btn">
+                        <span class="btn-icon">🚀</span>
+                        <span class="btn-text">Broadcast Lift Request</span>
+                        <span class="btn-subtext">Send to all online drivers</span>
+                    </button>
+                </div>
+
+                <!-- Broadcast Request Modal -->
                 <div id="request-modal" class="bottom-sheet hidden">
                     <div class="sheet-content">
                         <div class="handle"></div>
-                        <h2>Request Lift</h2>
-                        <div class="driver-info-mini">
-                            <span id="target-driver-name">Driver Name</span>
-                        </div>
+                        <h2>Broadcast Request</h2>
+                        <p class="sheet-sub">Specify your price for the lift.</p>
                         <div class="input-group">
                             <label>Suggest a Price</label>
                             <div class="price-input">
                                 <span class="currency">€</span>
-                                <input type="number" id="suggested-price" placeholder="10.00">
+                                <input type="number" id="suggested-price" placeholder="10.00" value="15.00">
                             </div>
                         </div>
-                        <button id="send-request-btn" class="primary-btn">Send Request</button>
+                        <button id="send-broadcast-btn" class="primary-btn">Broadcast Now</button>
                     </div>
                 </div>
             </section>
@@ -133,6 +140,19 @@
                 <span class="nav-text">Revolut</span>
             </button>
         </nav>
+    </div>
+
+    <!-- Driver Roster Modal -->
+    <div id="driver-roster-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="handle"></div>
+            <h2>Active Drivers</h2>
+            <p>Your trusted circle currently online.</p>
+            <div id="roster-list" class="roster-list">
+                <!-- Data injected here -->
+            </div>
+            <button id="close-roster-btn" class="primary-btn">Close</button>
+        </div>
     </div>
 
     <!-- iOS Install Guide Dialog -->
