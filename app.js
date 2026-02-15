@@ -208,6 +208,30 @@ window.renderRequests = function () {
     `).join('');
 };
 
+// UI State Manager to prevent overlaps
+window.updatePassengerUI = function (state, data = {}) {
+    console.log(`[FlyCabs] Switching UI to: ${state}`);
+    const hero = document.querySelector('.hero-section');
+    const waitingCard = document.getElementById('passenger-waiting-card');
+    const acceptedCard = document.getElementById('passenger-accepted-card');
+
+    // Reset all first
+    if (hero) hero.classList.add('hidden');
+    if (waitingCard) waitingCard.classList.add('hidden');
+    if (acceptedCard) acceptedCard.classList.add('hidden');
+
+    // Show active
+    if (state === 'HOME') {
+        if (hero) hero.classList.remove('hidden');
+    } else if (state === 'WAITING') {
+        if (waitingCard) waitingCard.classList.remove('hidden');
+    } else if (state === 'ACCEPTED') {
+        if (acceptedCard) acceptedCard.classList.remove('hidden');
+        const nameEl = document.getElementById('accepted-driver-name');
+        if (nameEl && data.driverName) nameEl.textContent = data.driverName;
+    }
+};
+
 window.checkRequestStatus = async function () {
     if (!window.FlyCabsState.currentRequestId) return;
 
@@ -216,11 +240,7 @@ window.checkRequestStatus = async function () {
         const data = await res.json();
 
         if (data.status === 'accepted') {
-            // Update UI -> Accepted
-            document.getElementById('passenger-waiting-card').classList.add('hidden');
-            document.getElementById('passenger-accepted-card').classList.remove('hidden');
-            document.getElementById('accepted-driver-name').textContent = data.driverName || "A Driver";
-
+            window.updatePassengerUI('ACCEPTED', { driverName: data.driverName });
             // Clear request ID so we stop polling
             window.FlyCabsState.currentRequestId = null;
         }
@@ -240,7 +260,8 @@ window.cancelRequest = async function () {
                 body: JSON.stringify({ id: window.FlyCabsState.currentRequestId })
             });
             alert("Request Cancelled.");
-            window.resetPassengerFlow();
+            window.FlyCabsState.currentRequestId = null;
+            window.updatePassengerUI('HOME');
         } catch (e) {
             console.error("Failed to cancel:", e);
         }
@@ -248,10 +269,9 @@ window.cancelRequest = async function () {
 };
 
 window.resetPassengerFlow = function () {
-    document.getElementById('passenger-waiting-card').classList.add('hidden');
-    document.getElementById('passenger-accepted-card').classList.add('hidden');
-    document.querySelector('.hero-section').classList.remove('hidden');
+    console.log("[FlyCabs] Resetting passenger flow (Trip Complete)");
     window.FlyCabsState.currentRequestId = null;
+    window.updatePassengerUI('HOME');
 };
 
 window.acceptRequest = async function (index) {
@@ -306,7 +326,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "21.4.0";
+    const APP_VERSION = "21.5.0";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -340,8 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // UI: Hide Form, Show Waiting
                     if (broadcastModal) broadcastModal.classList.add('hidden');
-                    document.getElementById('passenger-waiting-card').classList.remove('hidden');
-                    document.querySelector('.hero-section').classList.add('hidden'); // Hide normal hero
+                    window.updatePassengerUI('WAITING');
 
                     alert(`Request sent! Waiting for drivers...`);
                 }
