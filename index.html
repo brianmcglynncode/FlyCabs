@@ -55,7 +55,16 @@
                     <!-- Hidden File Input -->
                     <input type="file" id="passenger-file-input" accept="image/*" style="display: none;"
                         onchange="window.handleProfileUpload(this, 'passenger')">
-                    <p>Request a lift from your trusted circle.</p>
+
+                    <!-- Wallet / Payment Method Card -->
+                    <div class="wallet-card" onclick="window.togglePaymentMethod()">
+                        <div class="wallet-icon">💳</div>
+                        <div class="wallet-info">
+                            <span class="wallet-label">Payment Method</span>
+                            <strong id="passenger-payment-method">Cash</strong>
+                        </div>
+                        <div class="wallet-arrow">›</div>
+                    </div>
                 </div>
 
                 <!-- PWA Install Trigger -->
@@ -232,7 +241,7 @@
 
             <!-- Version Info (Hidden Troubleshooting) -->
             <div class="app-version-info">
-                <span>Version 23.0.24 (Crash Fix)</span>
+                <span>Version 23.0.25 (Autopay Mock)</span>
                 <button onclick="window.nuclearReset()" class="reset-link">Reset App Data & Update</button>
             </div>
         </main>

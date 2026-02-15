@@ -534,17 +534,51 @@ window.renderChat = function (messages, myRole) {
 };
 
 // Driver: Complete Trip
+// Payment Logic
+window.togglePaymentMethod = function () {
+    const current = document.getElementById('passenger-payment-method').textContent;
+    const next = current === 'Cash' ? 'Visa •••• 4242' : 'Cash';
+    document.getElementById('passenger-payment-method').textContent = next;
+    // Persist if needed in State
+    window.FlyCabsState.paymentMethod = next;
+};
+
+// Driver: Complete Trip (With Payment Simulation)
 window.completeTripDriver = function () {
-    if (confirm("Complete this trip? Passenger will be notified.")) {
-        // For demo, we just reset. Real app would do a backend call.
-        window.FlyCabsState.currentRequestId = null;
+    const btn = document.querySelector('#driver-active-trip-card .primary-btn');
+    const originalText = btn.textContent;
 
-        // Hide Active Card, Show Queue
-        document.getElementById('driver-active-trip-card').classList.add('hidden');
-        document.querySelector('.request-queue').classList.remove('hidden');
+    // 1. Processing State
+    btn.textContent = "Processing Payment...";
+    btn.disabled = true;
+    btn.style.background = "#95A5A6"; // Gray
 
-        alert("Trip Completed! Earnings added.");
-    }
+    setTimeout(() => {
+        // 2. Success State
+        const isCard = window.FlyCabsState.paymentMethod !== 'Cash'; // Default assumption or sync
+        // NOTE: In real app, driver would check what passenger set. 
+        // For local demo, we assume "Visa" if not specified, or we could sync it via the request object.
+        // Let's just mock "Success" for now.
+
+        btn.textContent = "Payment Successful! ✅";
+        btn.style.background = "#2ECC71"; // Green
+
+        setTimeout(() => {
+            // 3. Reset Flow
+            window.FlyCabsState.currentRequestId = null;
+
+            // Hide Active Card, Show Queue
+            document.getElementById('driver-active-trip-card').classList.add('hidden');
+            document.querySelector('.request-queue').classList.remove('hidden');
+
+            // Restore button
+            btn.textContent = originalText;
+            btn.disabled = false;
+            btn.style.background = ""; // Default
+
+            alert("Trip Completed! Earnings added.");
+        }, 1500);
+    }, 2000);
 };
 
 window.acceptRequest = async function (index) {
@@ -623,7 +657,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.24";
+    const APP_VERSION = "23.0.25";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
