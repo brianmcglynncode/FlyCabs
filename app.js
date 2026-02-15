@@ -121,10 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (roleToggle) roleToggle.addEventListener('change', window.updateView);
     if (statusBulb) statusBulb.closest('.driver-status-card').addEventListener('click', window.toggleDriverStatus);
 
-    if (broadcastTrigger) {
-        broadcastTrigger.addEventListener('click', () => broadcastModal.classList.remove('hidden'));
-    }
-
     if (sendBroadcastBtn) {
         sendBroadcastBtn.addEventListener('click', () => {
             const price = document.getElementById('suggested-price').value || "15.00";
