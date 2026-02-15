@@ -211,24 +211,42 @@ window.renderRequests = function () {
 // UI State Manager to prevent overlaps
 window.updatePassengerUI = function (state, data = {}) {
     console.log(`[FlyCabs] Switching UI to: ${state}`);
-    const hero = document.querySelector('.hero-section');
-    const waitingCard = document.getElementById('passenger-waiting-card');
-    const acceptedCard = document.getElementById('passenger-accepted-card');
+    try {
+        const hero = document.querySelector('.hero-section');
+        const waitingCard = document.getElementById('passenger-waiting-card');
+        const acceptedCard = document.getElementById('passenger-accepted-card');
 
-    // Reset all first
-    if (hero) hero.classList.add('hidden');
-    if (waitingCard) waitingCard.classList.add('hidden');
-    if (acceptedCard) acceptedCard.classList.add('hidden');
+        // FORCE HIDE ALL FIRST
+        if (hero) hero.style.display = 'none'; // Inline override
+        if (waitingCard) waitingCard.style.display = 'none';
+        if (acceptedCard) acceptedCard.style.display = 'none';
 
-    // Show active
-    if (state === 'HOME') {
-        if (hero) hero.classList.remove('hidden');
-    } else if (state === 'WAITING') {
-        if (waitingCard) waitingCard.classList.remove('hidden');
-    } else if (state === 'ACCEPTED') {
-        if (acceptedCard) acceptedCard.classList.remove('hidden');
-        const nameEl = document.getElementById('accepted-driver-name');
-        if (nameEl && data.driverName) nameEl.textContent = data.driverName;
+        // Also toggle classes for safety
+        if (hero) hero.classList.add('hidden');
+        if (waitingCard) waitingCard.classList.add('hidden');
+        if (acceptedCard) acceptedCard.classList.add('hidden');
+
+        // Show active
+        if (state === 'HOME') {
+            if (hero) {
+                hero.style.display = ''; // Clear inline
+                hero.classList.remove('hidden');
+            }
+        } else if (state === 'WAITING') {
+            if (waitingCard) {
+                waitingCard.style.display = ''; // Clear inline
+                waitingCard.classList.remove('hidden');
+            }
+        } else if (state === 'ACCEPTED') {
+            if (acceptedCard) {
+                acceptedCard.style.display = ''; // Clear inline
+                acceptedCard.classList.remove('hidden');
+            }
+            const nameEl = document.getElementById('accepted-driver-name');
+            if (nameEl && data.driverName) nameEl.textContent = data.driverName;
+        }
+    } catch (e) {
+        console.error("[FlyCabs] UI Update Failed:", e);
     }
 };
 
@@ -326,7 +344,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "21.5.0";
+    const APP_VERSION = "21.6.0";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
