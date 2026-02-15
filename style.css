@@ -552,6 +552,19 @@ body.is-ios .install-trigger-btn {
     transform: scale(0.95);
 }
 
+.debug-footer {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.debug-footer span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-decoration: underline;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
 
 /* Broadcast Experience */
 .available-drivers-summary {

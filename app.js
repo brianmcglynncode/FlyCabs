@@ -202,12 +202,30 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // SW Update Logic
+    // SW Update Logic (Hardened)
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log("[FlyCabs] New version detected! Reloading...");
             window.location.reload();
         });
+
+        // Aggressively check for updates when user returns to app
+        const checkUpdates = async () => {
+            const registration = await navigator.serviceWorker.ready;
+            if (registration) {
+                console.log("[FlyCabs] Checking for updates...");
+                registration.update();
+            }
+        };
+
+        window.addEventListener('focus', checkUpdates);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') checkUpdates();
+        });
     }
+
+    const APP_VERSION_V16 = "16.0.0";
+    console.log(`[FlyCabs] Initializing version ${APP_VERSION_V16}`);
 
     window.updateView();
 });
