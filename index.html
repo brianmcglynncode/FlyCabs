@@ -20,19 +20,6 @@
 
 <body class="mode-passenger">
     <div id="app">
-        <!-- PWA Installation Banner -->
-        <div id="pwa-install-banner" class="hidden">
-            <div class="banner-content">
-                <div class="banner-icon">🚀</div>
-                <div class="banner-text">
-                    <strong>Get FlyCabs on your screen</strong>
-                    <p id="pwa-hint">Install for the full luxury experience.</p>
-                </div>
-                <button id="pwa-install-btn" class="glass-btn">Install</button>
-                <button id="pwa-close-btn" class="close-btn">×</button>
-            </div>
-        </div>
-
         <!-- Header -->
         <header class="app-header">
             <div class="logo">
@@ -56,6 +43,17 @@
                 <div class="hero-section">
                     <h1>Where to next?</h1>
                     <p>Request a lift from your trusted circle.</p>
+                </div>
+
+                <!-- PWA Install Trigger -->
+                <div id="install-card-passenger" class="install-app-card hidden">
+                    <div class="install-inner">
+                        <div class="install-info">
+                            <strong>Add FlyCabs to Home Screen</strong>
+                            <span>Fast access & native experience</span>
+                        </div>
+                        <button class="install-trigger-btn">Install</button>
+                    </div>
                 </div>
 
                 <div class="available-drivers">
@@ -96,6 +94,17 @@
                     <p id="driver-status-sub">Turn on to see lift requests.</p>
                 </div>
 
+                <!-- PWA Install Trigger -->
+                <div id="install-card-driver" class="install-app-card hidden">
+                    <div class="install-inner">
+                        <div class="install-info">
+                            <strong>Install Driver App</strong>
+                            <span>Get instant lift notifications</span>
+                        </div>
+                        <button class="install-trigger-btn">Install</button>
+                    </div>
+                </div>
+
                 <div class="request-queue">
                     <h3 class="section-title">Incoming Requests</h3>
                     <div id="request-list" class="card-grid">
@@ -124,6 +133,26 @@
                 <span class="nav-text">Revolut</span>
             </button>
         </nav>
+    </div>
+
+    <!-- iOS Install Guide Dialog -->
+    <div id="ios-guide" class="modal hidden">
+        <div class="modal-content">
+            <div class="handle"></div>
+            <h2>Install FlyCabs</h2>
+            <p>To add FlyCabs to your home screen:</p>
+            <div class="guide-steps">
+                <div class="step">
+                    <span class="step-icon">⎋</span>
+                    <span class="step-text">Tap the <strong>Share</strong> button below.</span>
+                </div>
+                <div class="step">
+                    <span class="step-icon">⊞</span>
+                    <span class="step-text">Select <strong>"Add to Home Screen"</strong>.</span>
+                </div>
+            </div>
+            <button id="close-guide-btn" class="primary-btn">Got it</button>
+        </div>
     </div>
 
     <!-- PWA Registration -->

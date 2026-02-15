@@ -110,61 +110,61 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(`https://revolut.me/flycabs-demo`, '_blank');
     });
 
-    // --- PWA Installation Logic ---
+    // --- Button-Based PWA Installation Logic ---
     let deferredPrompt;
-    const pwaBanner = document.getElementById('pwa-install-banner');
-    const pwaBtn = document.getElementById('pwa-install-btn');
-    const pwaClose = document.getElementById('pwa-close-btn');
-    const pwaHint = document.getElementById('pwa-hint');
+    const installCards = document.querySelectorAll('.install-app-card');
+    const iosGuide = document.getElementById('ios-guide');
+    const closeGuideBtn = document.getElementById('close-guide-btn');
 
-    // Detect iOS & Mobile Safari
+    // Detect iOS & Standalone
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIOS = /iphone|ipad|ipod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-    console.log(`[FlyCabs] Platform Info: iOS=${isIOS}, Standalone=${isStandalone}`);
-
-    if (isIOS) {
-        document.body.classList.add('is-ios');
-        const shareIcon = '⎋';
-        pwaHint.innerHTML = `Tap the <span style="background: #E2E8F0; padding: 2px 6px; border-radius: 4px;">${shareIcon}</span> icon then <strong>"Add to Home Screen"</strong>`;
+    // Hide cards if already installed
+    if (isStandalone) {
+        installCards.forEach(card => card.classList.add('hidden'));
+    } else {
+        // Show cards for all mobile/installable users initially or after detection
+        if (isIOS) {
+            installCards.forEach(card => card.classList.remove('hidden'));
+        }
     }
 
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
+        // Show cards for Android/Chrome users
         if (!isStandalone) {
-            console.log("[FlyCabs] Android/Chrome Install Prompt Available.");
-            pwaBanner.classList.remove('hidden');
+            installCards.forEach(card => card.classList.remove('hidden'));
         }
     });
 
-    // Forced display for iOS (since they don't have beforeinstallprompt)
-    // REMOVED localstorage check for debugging
-    if (isIOS && !isStandalone) {
-        console.log("[FlyCabs] Showing iOS installation hint...");
-        setTimeout(() => {
-            pwaBanner.classList.remove('hidden');
-            // Force layout recalculation
-            pwaBanner.style.display = 'block';
-        }, 1500);
-    }
-
-    pwaBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        // Show the prompt
-        deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User responded to the install prompt: ${outcome}`);
-        // We've used the prompt, and can't use it again, throw it away
-        deferredPrompt = null;
-        pwaBanner.classList.add('hidden');
+    // Handle button clicks on installation cards
+    installCards.forEach(card => {
+        const btn = card.querySelector('.install-trigger-btn');
+        btn.addEventListener('click', async () => {
+            if (isIOS) {
+                iosGuide.classList.remove('hidden');
+            } else if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`[FlyCabs] Install outcome: ${outcome}`);
+                if (outcome === 'accepted') {
+                    installCards.forEach(c => c.classList.add('hidden'));
+                }
+                deferredPrompt = null;
+            }
+        });
     });
 
-    pwaClose.addEventListener('click', () => {
-        pwaBanner.classList.add('hidden');
-        localStorage.setItem('pwa_banner_closed', 'true');
+    closeGuideBtn.addEventListener('click', () => {
+        iosGuide.classList.add('hidden');
+    });
+
+    // Close modal on background click
+    iosGuide.addEventListener('click', (e) => {
+        if (e.target === iosGuide) iosGuide.classList.add('hidden');
     });
 
     updateView();
