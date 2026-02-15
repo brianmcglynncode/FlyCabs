@@ -117,29 +117,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const pwaClose = document.getElementById('pwa-close-btn');
     const pwaHint = document.getElementById('pwa-hint');
 
-    // Detect iOS
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    // Detect iOS & Mobile Safari
+    const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
     if (isIOS) {
         document.body.classList.add('is-ios');
-        pwaHint.textContent = "Tap 'Share' and 'Add to Home Screen'";
+        const shareIcon = '⎋'; // Approximated Share Icon
+        pwaHint.innerHTML = `Tap the <span style="background: #E2E8F0; padding: 2px 6px; border-radius: 4px;">${shareIcon}</span> icon then <strong>"Add to Home Screen"</strong>`;
     }
 
     window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
         e.preventDefault();
-        // Stash the event so it can be triggered later.
         deferredPrompt = e;
-        // Show our custom banner
         if (!isStandalone) {
+            console.log("[FlyCabs] PWA Install Prompt Available.");
             pwaBanner.classList.remove('hidden');
         }
     });
 
-    // For iOS users, we show the banner once if they are not in standalone mode
+    // Forced display for iOS (since they don't have beforeinstallprompt)
     if (isIOS && !isStandalone && !localStorage.getItem('pwa_banner_closed')) {
-        pwaBanner.classList.remove('hidden');
+        console.log("[FlyCabs] iOS detected, showing installation hint.");
+        // Short delay to ensure browser rendering is stable
+        setTimeout(() => {
+            pwaBanner.classList.remove('hidden');
+        }, 1000);
     }
 
     pwaBtn.addEventListener('click', async () => {
