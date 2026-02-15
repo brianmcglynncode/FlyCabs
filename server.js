@@ -92,6 +92,19 @@ app.post('/api/request/accept', (req, res) => {
     }
 });
 
+// Cancel a request (Passenger side)
+app.post('/api/request/cancel', (req, res) => {
+    const { id } = req.body;
+    const index = activeRequests.findIndex(r => r.id === id);
+    if (index !== -1) {
+        activeRequests.splice(index, 1); // Remove it completely
+        console.log(`[Server] Request ${id} cancelled by passenger`);
+        res.json({ success: true });
+    } else {
+        res.json({ success: false });
+    }
+});
+
 // Fallback for SPA
 // Fallback for SPA
 app.use((req, res) => {

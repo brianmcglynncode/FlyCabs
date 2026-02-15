@@ -229,7 +229,26 @@ window.checkRequestStatus = async function () {
     }
 };
 
+window.cancelRequest = async function () {
+    if (!window.FlyCabsState.currentRequestId) return;
+
+    if (confirm("Cancel your request?")) {
+        try {
+            await fetch('/api/request/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: window.FlyCabsState.currentRequestId })
+            });
+            alert("Request Cancelled.");
+            window.resetPassengerFlow();
+        } catch (e) {
+            console.error("Failed to cancel:", e);
+        }
+    }
+};
+
 window.resetPassengerFlow = function () {
+    document.getElementById('passenger-waiting-card').classList.add('hidden');
     document.getElementById('passenger-accepted-card').classList.add('hidden');
     document.querySelector('.hero-section').classList.remove('hidden');
     window.FlyCabsState.currentRequestId = null;
@@ -287,7 +306,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "21.3.0";
+    const APP_VERSION = "21.4.0";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');

@@ -63,6 +63,8 @@
                         style="background:var(--sunset-gold); width:16px; height:16px; margin:0 auto 20px;"></div>
                     <h3>Contacting Drivers...</h3>
                     <p>Hang tight, we're broadcasting your request.</p>
+                    <button class="secondary-btn" onclick="window.cancelRequest()"
+                        style="margin-top:20px; border: 1px solid #ddd;">Cancel Request</button>
                 </div>
 
                 <!-- Driver Found State -->
@@ -73,8 +75,13 @@
                     <p id="accepted-driver-name" style="font-weight: 700; font-size: 1.2rem; margin: 10px 0;">Driver
                         Name</p>
                     <p>They will be there shortly.</p>
-                    <button class="primary-btn" onclick="window.resetPassengerFlow()"
-                        style="margin-top:20px; background:var(--success);">Awesome!</button>
+
+                    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                        <button class="secondary-btn" onclick="alert('Calling driver...')" style="flex:1;">📞
+                            Call</button>
+                        <button class="primary-btn" onclick="window.resetPassengerFlow()"
+                            style="flex:1; background:var(--success);">Trip Complete</button>
+                    </div>
                 </div>
 
                 <!-- Updated Drivers Nearby Summary -->
@@ -168,7 +175,7 @@
 
             <!-- Version Info (Hidden Troubleshooting) -->
             <div class="app-version-info">
-                <span>Version 21.3.0 (Passenger Flow)</span>
+                <span>Version 21.4.0 (Better Flow)</span>
                 <button onclick="window.nuclearReset()" class="reset-link">Reset App Data & Update</button>
             </div>
         </main>
