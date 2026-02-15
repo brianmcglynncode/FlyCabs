@@ -6,12 +6,9 @@
 window.FlyCabsState = {
     isDriverActive: false,
     deferredPrompt: null,
-    drivers: [
-        { id: 1, name: "Peadar", car: "Tesla Model 3", active: true },
-        { id: 2, name: "Niamh", car: "VW ID.4", active: true },
-        { id: 3, name: "John", car: "BMW iX", active: false }
-    ],
-    activeRequests: []
+    drivers: [], // Fetched from server
+    activeRequests: [],
+    myDriverId: 'driver-' + Math.random().toString(36).substr(2, 9) // Random ID for this session
 };
 
 // Global Logic
@@ -38,15 +35,50 @@ window.updateView = function () {
     }
 };
 
-window.toggleDriverStatus = function () {
+window.toggleDriverStatus = async function () {
     window.FlyCabsState.isDriverActive = !window.FlyCabsState.isDriverActive;
     const statusText = document.getElementById('driver-status-text');
     const statusBulb = document.getElementById('status-bulb');
 
     document.body.classList.toggle('driver-active', window.FlyCabsState.isDriverActive);
     if (statusText) statusText.textContent = window.FlyCabsState.isDriverActive ? "You are Online" : "You are Offline";
+
+    // Sync with Server
+    try {
+        await fetch('/api/driver/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: window.FlyCabsState.myDriverId,
+                name: "User " + window.FlyCabsState.myDriverId.substr(0, 4),
+                car: "Local Driver",
+                active: window.FlyCabsState.isDriverActive
+            })
+        });
+        window.fetchDrivers(); // Update roster immediately
+    } catch (e) {
+        console.error("Failed to sync driver status:", e);
+    }
+
     window.renderRequests();
 };
+
+window.fetchDrivers = async function () {
+    try {
+        const res = await fetch('/api/drivers');
+        if (res.ok) {
+            window.FlyCabsState.drivers = await res.json();
+            window.renderDrivers();
+        }
+    } catch (e) {
+        console.error("Failed to fetch drivers:", e);
+    }
+};
+
+// Poll for drivers every 5 seconds
+setInterval(window.fetchDrivers, 5000);
+// Initial fetch
+window.fetchDrivers();
 
 window.renderDrivers = function () {
     const activeCount = window.FlyCabsState.drivers.filter(d => d.active).length;
