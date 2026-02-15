@@ -717,7 +717,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.41";
+    const APP_VERSION = "23.0.42";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -831,47 +831,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Manual Notification Trigger for iOS Debugging
     const enableNotifsBtn = document.getElementById('enable-notifications-btn');
+    const debugConsole = document.getElementById('debug-console');
+
+    const logDebug = (msg) => {
+        console.log(msg);
+        if (debugConsole) {
+            debugConsole.style.display = 'block';
+            debugConsole.innerHTML += `<div>> ${msg}</div>`;
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+        }
+    }
+
     if (enableNotifsBtn) {
         enableNotifsBtn.addEventListener('click', async () => {
-            console.log("[FlyCabs] Enable Notifications Clicked");
+            logDebug("Clicked Enable Notifications");
 
             // 1. Check if installed (iOS requires standalone for push)
+            logDebug(`Env: iOS=${isIOS}, Standalone=${isStandalone}`);
+
             if (!isStandalone && isIOS) {
+                logDebug("Error: Not installed on iOS");
                 document.getElementById('ios-guide').classList.remove('hidden');
                 return;
             }
 
             // 2. Request Permission
             try {
+                logDebug("Requesting Permission...");
                 const permission = await Notification.requestPermission();
-                console.log(`[FlyCabs] Permission Result: ${permission}`);
+                logDebug(`Result: ${permission}`);
 
                 if (permission === 'granted') {
-                    await window.subscribeUserToPush();
+                    // 3. Subscribe
+                    logDebug("Subscribing to Push Manager...");
+                    await window.subscribeUserToPush(logDebug); // Pass logger
 
-                    // Trigger Test Notification
+                    // 4. Test Push
                     const driverId = window.FlyCabsState.myDriverId;
-                    console.log(`[FlyCabs] Requesting Test Push for ${driverId}...`);
+                    logDebug(`Testing Push for ${driverId}...`);
 
                     try {
-                        await fetch('/api/push-test', {
+                        const res = await fetch('/api/push-test', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ driverId })
                         });
-                        alert("Notifications Enabled! 🔔\nSending test message now...");
+                        const data = await res.json();
+                        logDebug(`Server Response: ${data.success ? 'OK' : 'FAIL'}`);
+                        if (!data.success) logDebug(`Err: ${data.error}`);
+
+                        alert("Sent! Check Notification Center.");
                     } catch (e) {
-                        console.error("Test push failed", e);
-                        alert("Notifications Enabled! 🔔");
+                        logDebug(`Network/Server Error: ${e.message}`);
+                        alert(`Error: ${e.message}`);
                     }
 
                     enableNotifsBtn.innerText = "🔔 Test Notification";
                 } else {
-                    alert("Notifications Blocked. Please go to iPhone Settings > FlyCabs > Notifications and enable them.");
+                    logDebug("Permission Denied.");
+                    alert("Notifications Blocked. Reset permission in iOS Settings.");
                 }
             } catch (e) {
-                console.error(e);
-                alert("Error enabling notifications: " + e.message);
+                logDebug(`Exception: ${e.message}`);
+                alert("Error: " + e.message);
             }
         });
 
@@ -972,37 +994,45 @@ function urlBase64ToUint8Array(base64String) {
     return outputArray;
 }
 
-window.subscribeUserToPush = async function () {
-    if (!('serviceWorker' in navigator)) return;
+window.subscribeUserToPush = async function (logger = console.log) {
+    if (!('serviceWorker' in navigator)) {
+        logger("No Service Worker support");
+        return;
+    }
 
     try {
         const register = await navigator.serviceWorker.ready;
+        logger("SW Ready.");
 
         // Check if existing sub
         let subscription = await register.pushManager.getSubscription();
 
         if (!subscription) {
+            logger("No Sub. Creating new...");
             subscription = await register.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
             });
-            console.log("[FlyCabs] New Push Subscribed!");
+            logger("Push Subscribed (New).");
         } else {
-            console.log("[FlyCabs] Existing Push Subscription found.");
+            logger("Updating existing sub.");
         }
 
         // ALWAYS Send to Server (in case server restarted and lost it)
-        console.log("[FlyCabs] Syncing subscription to server...");
-        await fetch('/api/subscribe?driverId=' + window.FlyCabsState.myDriverId, {
+        logger("Syncing to server...");
+        const res = await fetch('/api/subscribe?driverId=' + window.FlyCabsState.myDriverId, {
             method: 'POST',
             body: JSON.stringify(subscription),
             headers: {
                 'content-type': 'application/json'
             }
         });
-        console.log("[FlyCabs] Subscription Synced!");
+
+        if (res.ok) logger("Sync OK!");
+        else logger("Sync Failed: " + res.status);
 
     } catch (e) {
+        logger("Sub Error: " + e.message);
         console.error("Push Sub Failed:", e);
     }
 };
