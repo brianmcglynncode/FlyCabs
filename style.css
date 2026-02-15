@@ -165,7 +165,8 @@ section {
 section.active {
     display: block;
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
+    /* Clear transform to avoid fixed position anchoring issues */
 }
 
 .hero-section h1 {
@@ -300,6 +301,13 @@ body.driver-active .status-indicator {
     max-height: 90vh;
     display: flex;
     flex-direction: column;
+}
+
+/* Ensure hidden class works (was likely relying on transform before) */
+.bottom-sheet.hidden {
+    transform: translateY(100%);
+    pointer-events: none;
+    /* Prevent clicks when hidden */
 }
 
 .bottom-sheet.visible {
