@@ -167,5 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === iosGuide) iosGuide.classList.add('hidden');
     });
 
+    // Restore missing toggle listeners
+    roleToggle.addEventListener('change', updateView);
+    if (statusBulb) statusBulb.parentElement.addEventListener('click', toggleDriverStatus);
+
     updateView();
 });
