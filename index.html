@@ -103,8 +103,6 @@
                     <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
                         <button class="secondary-btn" onclick="alert('Calling driver...')" style="flex:1;">📞
                             Call</button>
-                        <button class="primary-btn" onclick="window.resetPassengerFlow()"
-                            style="flex:1; background:var(--success);">Trip Complete</button>
                     </div>
 
                     <!-- Chat Section -->
@@ -118,6 +116,15 @@
                             <button onclick="window.sendChat('passenger')">➤</button>
                         </div>
                     </div>
+                </div>
+
+                <!-- Trip Completion / Payment Success Card -->
+                <div id="passenger-completion-card" class="card status-card hidden"
+                    style="text-align:center; padding: 50px 20px; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white;">
+                    <div class="success-icon" style="font-size: 4rem; margin-bottom: 20px;">✅</div>
+                    <h2 style="font-size: 2rem; margin-bottom: 10px;">Payment Successful!</h2>
+                    <p style="font-size: 1.1rem; opacity: 0.9;">Thank you for riding with FlyCabs.</p>
+                    <div style="margin-top: 30px; font-size: 0.9rem; opacity: 0.8;">Receipt sent to email</div>
                 </div>
 
                 <!-- Updated Drivers Nearby Summary -->
@@ -248,7 +255,7 @@
 
             <!-- Version Info (Hidden Troubleshooting) -->
             <div class="app-version-info">
-                <span>Version 23.0.34 (Persistence Fix)</span>
+                <span>Version 23.0.35 (Visual Completion)</span>
                 <button onclick="window.nuclearReset()" class="reset-link">Reset App Data & Update</button>
             </div>
         </main>
