@@ -11,6 +11,11 @@
     --transition-standard: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
+/* Global Hidden Utility */
+.hidden {
+    display: none !important;
+}
+
 * {
     margin: 0;
     padding: 0;

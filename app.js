@@ -515,7 +515,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.9";
+    const APP_VERSION = "23.0.10";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -681,9 +681,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize View
     window.updateView();
-    // Ensure modal is visible initially
-    const initModal = document.getElementById('request-modal');
-    if (initModal) initModal.classList.remove('hidden');
+
+    // Safety: Force UI to HOME state (hidden cards) on load
+    // This cleans up any HTML-default visible cards if JS hasn't run yet
+    window.updatePassengerUI('HOME');
 
     // Init Passenger Name
     window.updateProfileDisplays();
