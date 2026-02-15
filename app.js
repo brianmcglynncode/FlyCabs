@@ -367,6 +367,12 @@ window.updatePassengerUI = function (state, data = {}) {
                 hero.style.display = ''; // Clear inline
                 hero.classList.remove('hidden');
             }
+            // Ensure Request Modal is visible in Home state (it's a bottom sheet)
+            const reqModal = document.getElementById('request-modal');
+            if (reqModal) {
+                reqModal.classList.remove('hidden');
+                reqModal.classList.add('visible'); // Ensure CSS transition
+            }
         } else if (state === 'WAITING') {
             if (waitingCard) {
                 waitingCard.style.display = ''; // Clear inline
@@ -493,7 +499,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.1";
+    const APP_VERSION = "23.0.2";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -659,6 +665,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize View
     window.updateView();
+    // Ensure modal is visible initially
+    const initModal = document.getElementById('request-modal');
+    if (initModal) initModal.classList.remove('hidden');
 
     // Init Passenger Name
     window.updateProfileDisplays();
