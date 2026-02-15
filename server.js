@@ -36,10 +36,11 @@ app.post('/api/driver/status', (req, res) => {
 });
 
 // Fallback for SPA
-app.get('*', (req, res) => {
+// Fallback for SPA
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
     console.log(`FlyCabs Server running on port ${port}`);
 });
