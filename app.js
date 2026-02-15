@@ -138,7 +138,7 @@ window.renderRequests = function () {
 
     requestList.innerHTML = othersRequests.map((req, index) => {
         const picHtml = req.passengerPic ?
-            `<div style="width:40px; height:40px; border-radius:50%; background-image:url(${req.passengerPic}); background-size:cover; flex-shrink:0;"></div>` :
+            `<div style="width:40px; height:40px; border-radius:50%; background-image:url('${req.passengerPic}'); background-size:cover; flex-shrink:0;"></div>` :
             `<div style="width:40px; height:40px; border-radius:50%; background:#ddd; display:flex; align-items:center; justify-content:center; flex-shrink:0;">👤</div>`;
 
         return `
@@ -146,7 +146,7 @@ window.renderRequests = function () {
             <div class="user-info" style="display:flex; gap:12px; align-items:center;">
                 ${picHtml}
                 <div>
-                    <strong>${req.passengerName || 'Passenger'}</strong><br>
+                    <strong style="color: #000;">${req.passengerName || 'Passenger'}</strong><br>
                     <span style="font-size:0.85rem; color:#666;">${req.from} → ${req.to}</span>
                 </div>
             </div>
@@ -515,7 +515,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.7";
+    const APP_VERSION = "23.0.8";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
