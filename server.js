@@ -41,6 +41,39 @@ app.get('/api/requests', (req, res) => {
     res.json(activeRequests.filter(r => r.status === 'pending'));
 });
 
+const webpush = require('web-push');
+
+// Generate these once with: npx web-push generate-vapid-keys --json
+const publicVapidKey = 'BOXIN6A-B8zMI0VOoaidgfVsCOgG2kVeNaLdDxbrid1ezClrcXB27iDgUOXPUFjMbEROIzZbbKiO3vE1bZc7gOc';
+const privateVapidKey = 'AKWWIJq_8J_e1WC6R3qI8y2PMk0CSPDr8TeVPiRfBPk';
+
+webpush.setVapidDetails('mailto:admin@flycabs.com', publicVapidKey, privateVapidKey);
+
+// Store subscriptions
+let pushSubscriptions = []; // { id: 'driver-id', sub: {} }
+
+app.post('/api/subscribe', (req, res) => {
+    const subscription = req.body;
+    const { driverId } = req.query; // If driver, tag it
+
+    // Remove old sub if exists
+    pushSubscriptions = pushSubscriptions.filter(s => s.sub.endpoint !== subscription.endpoint);
+    pushSubscriptions.push({ id: driverId || 'anon', sub: subscription });
+
+    res.status(201).json({});
+    console.log(`[Server] New Push Sub stored via ${driverId || 'anon'}`);
+});
+
+// Trigger Notification Helper
+const sendPushToDrivers = (message) => {
+    console.log(`[Server] Sending Push: ${message}`);
+    // Ideally filter by 'active' drivers only, but for now broadcast to all subs
+    pushSubscriptions.forEach(s => {
+        const payload = JSON.stringify({ title: 'New Lift Request! 🚕', body: message });
+        webpush.sendNotification(s.sub, payload).catch(err => console.error("Push Error", err));
+    });
+};
+
 // Create a new request
 app.post('/api/request', (req, res) => {
     const { from, to, price, passengerId, passengerName, passengerPic } = req.body;
@@ -63,6 +96,10 @@ app.post('/api/request', (req, res) => {
     activeRequests = activeRequests.filter(r => r.timestamp > tenMinutesAgo);
 
     console.log(`[Server] New Request: ${from} -> ${to} (€${price})`);
+
+    // 🔥 TRIGGER PUSH SUBSCRIPTIONS
+    sendPushToDrivers(`€${price} from ${passengerName || 'Passenger'}`);
+
     res.json({ success: true, requestId: newRequest.id });
 });
 

@@ -54,4 +54,29 @@ self.addEventListener('fetch', (event) => {
                 return caches.match(event.request);
             })
     );
-});
+    // --- Web Push ---
+    self.addEventListener('push', event => {
+        const data = event.data ? event.data.json() : {};
+        const title = data.title || 'FlyCabs Update';
+        const options = {
+            body: data.body || 'New activity on FlyCabs.',
+            icon: './icon.png',
+            badge: './icon.png',
+            data: { url: data.url || '/' }
+        };
+
+        event.waitUntil(self.registration.showNotification(title, options));
+    });
+
+    self.addEventListener('notificationclick', event => {
+        event.notification.close();
+        event.waitUntil(
+            clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+                // Focus existing window or open new
+                for (let client of windowClients) {
+                    if (client.url && 'focus' in client) return client.focus();
+                }
+                if (clients.openWindow) return clients.openWindow(event.notification.data.url);
+            })
+        );
+    });

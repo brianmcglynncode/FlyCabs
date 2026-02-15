@@ -623,7 +623,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.22";
+    const APP_VERSION = "23.0.23";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -805,16 +805,76 @@ document.addEventListener('DOMContentLoaded', () => {
         const statusText = document.getElementById('driver-status-text');
         if (statusText) statusText.textContent = "You are Online";
 
-        // Re-announce to server
-        fetch('/api/driver/status', {
+        // Try Push Sub
+        window.subscribeUserToPush();
+    }
+});
+
+// --- Push Notifications ---
+const publicVapidKey = 'BOXIN6A-B8zMI0VOoaidgfVsCOgG2kVeNaLdDxbrid1ezClrcXB27iDgUOXPUFjMbEROIzZbbKiO3vE1bZc7gOc';
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+window.subscribeUserToPush = async function () {
+    if (!('serviceWorker' in navigator)) return;
+
+    try {
+        const register = await navigator.serviceWorker.ready;
+
+        // Check if existing sub
+        const existingSub = await register.pushManager.getSubscription();
+        if (existingSub) {
+            console.log("[FlyCabs] Already subscribed to push");
+            return; // Already good
+        }
+
+        const subscription = await register.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+        });
+
+        console.log("[FlyCabs] Push Subscribed!");
+
+        // Send to Server
+        await fetch('/api/subscribe?driverId=' + window.FlyCabsState.myDriverId, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id: window.FlyCabsState.myDriverId,
-                name: window.FlyCabsState.myDriverName,
-                car: "Local Driver",
-                active: true
-            })
-        }).catch(e => console.error("Failed to restore online status:", e));
+            body: JSON.stringify(subscription),
+            headers: {
+                'content-type': 'application/json'
+            }
+        });
+    } catch (e) {
+        console.error("Push Sub Failed:", e);
+    }
+};
+
+// Also trigger on manual toggle
+const originalToggle = window.toggleDriverStatus;
+window.toggleDriverStatus = async function () {
+    await originalToggle(); // Call original
+    if (window.FlyCabsState.isDriverActive) {
+        window.subscribeUserToPush();
+    }
+};
+// Re-announce to server
+fetch('/api/driver/status', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        id: window.FlyCabsState.myDriverId,
+        name: window.FlyCabsState.myDriverName,
+        car: "Local Driver",
+        active: true
+    })
+}).catch(e => console.error("Failed to restore online status:", e));
     }
 });
