@@ -277,9 +277,15 @@ setInterval(() => {
     if (window.FlyCabsState.isDriverActive) window.fetchRequests();
     if (window.FlyCabsState.currentRequestId) {
         window.checkRequestStatus(); // Passenger Check
-        window.pollChat(); // Both Check (if active ID exists)
     }
 }, 3000);
+
+// Dedicated Chat Poller (Faster: 1s)
+setInterval(() => {
+    if (window.FlyCabsState.currentRequestId) {
+        window.pollChat();
+    }
+}, 1000);
 
 // Initial fetch
 window.fetchDrivers();
@@ -610,7 +616,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.19";
+    const APP_VERSION = "23.0.20";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
