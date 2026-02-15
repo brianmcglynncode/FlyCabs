@@ -1,0 +1,17 @@
+{
+    "name": "FlyCabs",
+    "short_name": "FlyCabs",
+    "description": "Trusted lifts for family and friends.",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#1A1A2E",
+    "theme_color": "#A3D8F4",
+    "icons": [
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/7511/7511679.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

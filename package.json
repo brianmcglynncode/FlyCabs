@@ -1,0 +1,19 @@
+{
+    "name": "flycabs-pwa",
+    "version": "1.0.0",
+    "description": "Trusted lifts for family and friends.",
+    "main": "index.html",
+    "scripts": {
+        "start": "npx -y http-server . -p $PORT"
+    },
+    "dependencies": {
+        "http-server": "^14.1.1"
+    },
+    "keywords": [
+        "pwa",
+        "rideshare",
+        "trust"
+    ],
+    "author": "Antigravity",
+    "license": "MIT"
+}

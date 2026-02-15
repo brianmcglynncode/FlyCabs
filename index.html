@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlyCabs | Trusted Rides</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#A3D8F4">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="mode-passenger">
+    <div id="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-icon">☁️</span>
+                <span class="logo-text">FlyCabs</span>
+            </div>
+            <div class="mode-toggle">
+                <span class="mode-label" id="mode-text">Passenger</span>
+                <label class="switch">
+                    <input type="checkbox" id="role-toggle">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </header>
+
+        <!-- Main Content Surface -->
+        <main class="content-surface">
+
+            <!-- Passenger View -->
+            <section id="view-passenger" class="active">
+                <div class="hero-section">
+                    <h1>Where to next?</h1>
+                    <p>Request a lift from your trusted circle.</p>
+                </div>
+
+                <div class="available-drivers">
+                    <h3 class="section-title">Available Drivers</h3>
+                    <div id="driver-list" class="card-grid">
+                        <!-- Drivers injected here -->
+                        <div class="empty-state">
+                            <p>No drivers active right now. Check back soon!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lift Request Modal/Panel -->
+                <div id="request-modal" class="bottom-sheet hidden">
+                    <div class="sheet-content">
+                        <div class="handle"></div>
+                        <h2>Request Lift</h2>
+                        <div class="driver-info-mini">
+                            <span id="target-driver-name">Driver Name</span>
+                        </div>
+                        <div class="input-group">
+                            <label>Suggest a Price</label>
+                            <div class="price-input">
+                                <span class="currency">€</span>
+                                <input type="number" id="suggested-price" placeholder="10.00">
+                            </div>
+                        </div>
+                        <button id="send-request-btn" class="primary-btn">Send Request</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Driver View -->
+            <section id="view-driver">
+                <div class="driver-status-card">
+                    <div class="status-indicator" id="status-bulb"></div>
+                    <h2 id="driver-status-text">You are Offline</h2>
+                    <p id="driver-status-sub">Turn on to see lift requests.</p>
+                </div>
+
+                <div class="request-queue">
+                    <h3 class="section-title">Incoming Requests</h3>
+                    <div id="request-list" class="card-grid">
+                        <!-- Requests injected here -->
+                        <div class="empty-state">
+                            <p>Turn on visibility to receive requests.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-view="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Home</span>
+            </button>
+            <button class="nav-item" id="whatsapp-invite">
+                <span class="nav-icon">💬</span>
+                <span class="nav-text">Invite</span>
+            </button>
+            <button class="nav-item" id="payment-btn">
+                <span class="nav-icon">💶</span>
+                <span class="nav-text">Revolut</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- PWA Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
+    <script src="app.js"></script>
+</body>
+
+</html>
