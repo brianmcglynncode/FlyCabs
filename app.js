@@ -110,8 +110,54 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(`https://revolut.me/flycabs-demo`, '_blank');
     });
 
-    roleToggle.addEventListener('change', updateView);
-    if (statusBulb) statusBulb.parentElement.addEventListener('click', toggleDriverStatus);
+    // --- PWA Installation Logic ---
+    let deferredPrompt;
+    const pwaBanner = document.getElementById('pwa-install-banner');
+    const pwaBtn = document.getElementById('pwa-install-btn');
+    const pwaClose = document.getElementById('pwa-close-btn');
+    const pwaHint = document.getElementById('pwa-hint');
+
+    // Detect iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+    if (isIOS) {
+        document.body.classList.add('is-ios');
+        pwaHint.textContent = "Tap 'Share' and 'Add to Home Screen'";
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        e.preventDefault();
+        // Stash the event so it can be triggered later.
+        deferredPrompt = e;
+        // Show our custom banner
+        if (!isStandalone) {
+            pwaBanner.classList.remove('hidden');
+        }
+    });
+
+    // For iOS users, we show the banner once if they are not in standalone mode
+    if (isIOS && !isStandalone && !localStorage.getItem('pwa_banner_closed')) {
+        pwaBanner.classList.remove('hidden');
+    }
+
+    pwaBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        // Show the prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User responded to the install prompt: ${outcome}`);
+        // We've used the prompt, and can't use it again, throw it away
+        deferredPrompt = null;
+        pwaBanner.classList.add('hidden');
+    });
+
+    pwaClose.addEventListener('click', () => {
+        pwaBanner.classList.add('hidden');
+        localStorage.setItem('pwa_banner_closed', 'true');
+    });
 
     updateView();
 });
