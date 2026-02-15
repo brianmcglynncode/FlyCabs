@@ -97,6 +97,18 @@
                         <button class="primary-btn" onclick="window.resetPassengerFlow()"
                             style="flex:1; background:var(--success);">Trip Complete</button>
                     </div>
+
+                    <!-- Chat Section -->
+                    <div class="chat-container">
+                        <div id="passenger-chat-messages" class="chat-messages">
+                            <!-- Messages injected here -->
+                            <div class="chat-bubble them">Message from driver...</div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="passenger-chat-input" placeholder="Message driver...">
+                            <button onclick="window.sendChat('passenger')">➤</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Updated Drivers Nearby Summary -->
@@ -179,6 +191,34 @@
                     </div>
                 </div>
 
+                <!-- Active Trip Card (New) -->
+                <div id="driver-active-trip-card" class="card status-card hidden"
+                    style="background: #E8F8F5; margin-bottom: 24px; padding: 24px;">
+                    <h3 style="color: var(--success); text-align: center;">Active Trip</h3>
+                    <div style="text-align:center; margin: 15px 0;">
+                        <div id="active-passenger-pic"
+                            style="width: 60px; height: 60px; border-radius: 50%; background: #ddd; margin: 0 auto 10px; background-size: cover;">
+                        </div>
+                        <h2 id="active-passenger-name">Passenger Name</h2>
+                        <p id="active-trip-dest" style="font-weight:bold; color: var(--deep-night);">To: Destination</p>
+                        <p id="active-trip-price" style="color: var(--success); font-weight:bold;">€15.00</p>
+                    </div>
+
+                    <!-- Chat Section -->
+                    <div class="chat-container">
+                        <div id="driver-chat-messages" class="chat-messages">
+                            <!-- Messages -->
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="driver-chat-input" placeholder="Message passenger...">
+                            <button onclick="window.sendChat('driver')">➤</button>
+                        </div>
+                    </div>
+
+                    <button class="primary-btn" onclick="window.completeTripDriver()"
+                        style="margin-top:20px; background: var(--success);">Complete Trip</button>
+                </div>
+
                 <div class="request-queue">
                     <h3 class="section-title">Incoming Requests</h3>
                     <div id="request-list" class="card-grid">
@@ -192,7 +232,7 @@
 
             <!-- Version Info (Hidden Troubleshooting) -->
             <div class="app-version-info">
-                <span>Version 23.0.14 (Order Fix)</span>
+                <span>Version 23.0.15 (Chat Feature)</span>
                 <button onclick="window.nuclearReset()" class="reset-link">Reset App Data & Update</button>
             </div>
         </main>

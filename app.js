@@ -273,7 +273,10 @@ window.fetchDrivers = async function () {
 setInterval(() => {
     window.fetchDrivers();
     if (window.FlyCabsState.isDriverActive) window.fetchRequests();
-    if (window.FlyCabsState.currentRequestId) window.checkRequestStatus();
+    if (window.FlyCabsState.currentRequestId) {
+        window.checkRequestStatus(); // Passenger Check
+        window.pollChat(); // Both Check (if active ID exists)
+    }
 }, 3000);
 
 // Initial fetch
@@ -438,6 +441,77 @@ window.resetPassengerFlow = function () {
     window.updatePassengerUI('HOME');
 };
 
+    }
+};
+
+// --- Chat Logic ---
+window.pollChat = async function () {
+    if (!window.FlyCabsState.currentRequestId) return;
+
+    try {
+        const res = await fetch(`/api/chat/${window.FlyCabsState.currentRequestId}`);
+        if (res.ok) {
+            const messages = await res.json();
+            const role = window.FlyCabsState.isDriverActive ? 'driver' : 'passenger';
+            window.renderChat(messages, role);
+        }
+    } catch (e) {
+        console.error("Chat poll failed", e);
+    }
+};
+
+window.sendChat = async function (sender) {
+    const inputId = sender === 'driver' ? 'driver-chat-input' : 'passenger-chat-input';
+    const input = document.getElementById(inputId);
+    const text = input.value.trim();
+
+    if (!text || !window.FlyCabsState.currentRequestId) return;
+
+    try {
+        await fetch('/api/chat/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                requestId: window.FlyCabsState.currentRequestId,
+                sender: sender,
+                text: text
+            })
+        });
+        input.value = '';
+        window.pollChat(); // Instant update
+    } catch (e) {
+        console.error("Send failed", e);
+    }
+};
+
+window.renderChat = function (messages, myRole) {
+    const containerId = myRole === 'driver' ? 'driver-chat-messages' : 'passenger-chat-messages';
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = messages.map(msg => {
+        const isMe = msg.sender === myRole;
+        return `<div class="chat-bubble ${isMe ? 'me' : 'them'}">${msg.text}</div>`;
+    }).join('');
+
+    // Auto-scroll to bottom
+    container.scrollTop = container.scrollHeight;
+};
+
+// Driver: Complete Trip
+window.completeTripDriver = function () {
+    if (confirm("Complete this trip? Passenger will be notified.")) {
+        // For demo, we just reset. Real app would do a backend call.
+        window.FlyCabsState.currentRequestId = null;
+
+        // Hide Active Card, Show Queue
+        document.getElementById('driver-active-trip-card').classList.add('hidden');
+        document.querySelector('.request-queue').classList.remove('hidden');
+
+        alert("Trip Completed! Earnings added.");
+    }
+};
+
 window.acceptRequest = async function (index) {
     const req = window.FlyCabsState.activeRequests[index];
     if (confirm(`Accept lift for €${req.price}?`)) {
@@ -451,8 +525,31 @@ window.acceptRequest = async function (index) {
                     driverPic: window.FlyCabsState.myDriverPic
                 })
             });
+
+            // DRIVE MODE: Switch to Active Trip UI
+            window.FlyCabsState.currentRequestId = req.id; // Track ID for chat
+
+            const queueDiv = document.querySelector('.request-queue');
+            const activeCard = document.getElementById('driver-active-trip-card');
+
+            if (queueDiv) queueDiv.classList.add('hidden');
+            if (activeCard) {
+                activeCard.classList.remove('hidden');
+                // Populate Info
+                document.getElementById('active-passenger-name').textContent = req.passengerName || "Passenger";
+                document.getElementById('active-trip-dest').textContent = `To: ${req.to}`;
+                document.getElementById('active-trip-price').textContent = `€${req.price}`;
+
+                const pPic = document.getElementById('active-passenger-pic');
+                if (req.passengerPic) {
+                    pPic.style.backgroundImage = `url('${req.passengerPic}')`;
+                } else {
+                    pPic.style.backgroundImage = '';
+                }
+            }
+
             alert(`Lift Accepted! Head to ${req.from}.`);
-            window.fetchRequests();
+            // activeRequests will clear on next poll
         } catch (e) {
             console.error("Failed to accept request:", e);
         }
@@ -491,7 +588,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.14";
+    const APP_VERSION = "23.0.15";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');

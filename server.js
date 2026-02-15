@@ -108,6 +108,27 @@ app.post('/api/request/cancel', (req, res) => {
     }
 });
 
+// --- Chat System ---
+const chatMessages = {}; // { requestId: [ { sender: 'passenger'|'driver', text: 'hi', timestamp: 123 } ] }
+
+app.get('/api/chat/:requestId', (req, res) => {
+    const { requestId } = req.params;
+    res.json(chatMessages[requestId] || []);
+});
+
+app.post('/api/chat/send', (req, res) => {
+    const { requestId, sender, text } = req.body;
+    if (!chatMessages[requestId]) chatMessages[requestId] = [];
+
+    const msg = { sender, text, timestamp: Date.now() };
+    chatMessages[requestId].push(msg);
+
+    // Limit history to 50 messages
+    if (chatMessages[requestId].length > 50) chatMessages[requestId].shift();
+
+    res.json({ success: true });
+});
+
 // Fallback for SPA
 // Fallback for SPA
 app.use((req, res) => {
