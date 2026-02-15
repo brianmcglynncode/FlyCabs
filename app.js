@@ -347,14 +347,20 @@ window.renderRequests = function () {
 window.updatePassengerUI = function (state, data = {}) {
     console.log(`[FlyCabs] Switching UI to: ${state}`);
     try {
-        const hero = document.querySelector('.hero-section');
-        const waitingCard = document.getElementById('passenger-waiting-card');
-        const acceptedCard = document.getElementById('passenger-accepted-card');
+        const reqModal = document.getElementById('request-modal');
 
         // FORCE HIDE ALL FIRST
         if (hero) hero.style.display = 'none'; // Inline override
         if (waitingCard) waitingCard.style.display = 'none';
         if (acceptedCard) acceptedCard.style.display = 'none';
+
+        // Safety: If we aren't in HOME, hiding the modal via display ensures no overlap.
+        // We will un-hide it explicitly in HOME block.
+        // We keep the class logic for transitions, but display:none is the nuclear option for the overlap bug.
+        if (state !== 'HOME' && reqModal) {
+            reqModal.style.display = 'none';
+            reqModal.classList.add('hidden');
+        }
 
         // Also toggle classes for safety
         if (hero) hero.classList.add('hidden');
@@ -368,33 +374,26 @@ window.updatePassengerUI = function (state, data = {}) {
                 hero.classList.remove('hidden');
             }
             // Ensure Request Modal is visible in Home state (it's a bottom sheet)
-            const reqModal = document.getElementById('request-modal');
             if (reqModal) {
-                reqModal.classList.remove('hidden');
-                reqModal.classList.add('visible'); // Ensure CSS transition
+                reqModal.style.display = ''; // Restore default (block/flex)
+                // Small timeout to allow display to apply before removing hidden class (for transition)
+                setTimeout(() => {
+                    reqModal.classList.remove('hidden');
+                    reqModal.classList.add('visible');
+                }, 10);
             }
         } else if (state === 'WAITING') {
             if (waitingCard) {
                 waitingCard.style.display = ''; // Clear inline
                 waitingCard.classList.remove('hidden');
             }
-            // HIDE Request Modal
-            const reqModal = document.getElementById('request-modal');
-            if (reqModal) {
-                reqModal.classList.add('hidden');
-                reqModal.classList.remove('visible');
-            }
+            // HIDE Request Modal - Already handled by top block, but ensuring
         } else if (state === 'ACCEPTED') {
             if (acceptedCard) {
                 acceptedCard.style.display = ''; // Clear inline
                 acceptedCard.classList.remove('hidden');
             }
-            // HIDE Request Modal
-            const reqModal = document.getElementById('request-modal');
-            if (reqModal) {
-                reqModal.classList.add('hidden');
-                reqModal.classList.remove('visible');
-            }
+            // HIDE Request Modal - Already handled by top block
 
             const nameEl = document.getElementById('accepted-driver-name');
             if (nameEl && data.driverName) nameEl.textContent = data.driverName;
@@ -513,7 +512,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.4";
+    const APP_VERSION = "23.0.5";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
