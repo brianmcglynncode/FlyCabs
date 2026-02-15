@@ -317,31 +317,7 @@ window.fetchRequests = async function () {
     }
 };
 
-window.renderRequests = function () {
-    const requestList = document.getElementById('request-list');
-    if (!requestList) return;
-
-    if (!window.FlyCabsState.isDriverActive) {
-        requestList.innerHTML = `<div class="empty-state"><p>Turn on visibility to receive requests.</p></div>`;
-        return;
-    }
-
-    if (window.FlyCabsState.activeRequests.length === 0) {
-        requestList.innerHTML = `<div class="empty-state"><p>No active requests nearby.</p></div>`;
-        return;
-    }
-
-    requestList.innerHTML = window.FlyCabsState.activeRequests.map((req, index) => `
-        <div class="card request-card" style="background: #F5F7FA; padding: 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 15px;">
-            <div class="user-info">
-                <strong>${req.from} → ${req.to}</strong><br>
-                <span>Passenger Request</span>
-            </div>
-            <div class="bid-amount" style="margin: 10px 0; color: #1A1A2E; font-weight: 700;">Suggested: €${req.price}</div>
-            <button class="primary-btn" onclick="window.acceptRequest(${index})" style="padding: 10px;">Accept Lift</button>
-        </div>
-    `).join('');
-};
+// [Duplicate renderRequests removed]
 
 // UI State Manager to prevent overlaps
 window.updatePassengerUI = function (state, data = {}) {
@@ -515,7 +491,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.10";
+    const APP_VERSION = "23.0.11";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
