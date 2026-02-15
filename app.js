@@ -161,5 +161,13 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(`https://revolut.me/flycabs-demo`, '_blank');
     });
 
+    // SW Update Logic
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log("[FlyCabs] New Service Worker taking control. Reloading...");
+            window.location.reload();
+        });
+    }
+
     window.updateView();
 });

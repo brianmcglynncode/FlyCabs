@@ -1,4 +1,4 @@
-const CACHE_NAME = 'flycabs-v12';
+const CACHE_NAME = 'flycabs-v13';
 const ASSETS = [
     './',
     './index.html',
@@ -8,7 +8,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-    self.skipWaiting();
+    self.skipWaiting(); // Force the waiting service worker to become the active service worker.
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
     );
@@ -16,11 +16,16 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
-            );
-        })
+        Promise.all([
+            // Clean up old caches
+            caches.keys().then((cacheNames) => {
+                return Promise.all(
+                    cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
+                );
+            }),
+            // Take control of all pages immediately 
+            self.clients.claim()
+        ])
     );
 });
 
