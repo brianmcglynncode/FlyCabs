@@ -347,6 +347,9 @@ window.renderRequests = function () {
 window.updatePassengerUI = function (state, data = {}) {
     console.log(`[FlyCabs] Switching UI to: ${state}`);
     try {
+        const hero = document.querySelector('.hero-section');
+        const waitingCard = document.getElementById('passenger-waiting-card');
+        const acceptedCard = document.getElementById('passenger-accepted-card');
         const reqModal = document.getElementById('request-modal');
 
         // FORCE HIDE ALL FIRST
@@ -512,7 +515,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.6";
+    const APP_VERSION = "23.0.7";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
