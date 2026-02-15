@@ -4,12 +4,20 @@
 
 // Global State
 window.FlyCabsState = {
-    isDriverActive: false,
+    isDriverActive: localStorage.getItem('flycabs_status') === 'true', // Persist status
     deferredPrompt: null,
-    drivers: [], // Fetched from server
+    drivers: [],
     activeRequests: [],
-    myDriverId: 'driver-' + Math.random().toString(36).substr(2, 9) // Random ID for this session
+    // Persist Identity: Get existing ID or generate new one
+    myDriverId: localStorage.getItem('flycabs_id') || 'driver-' + Math.random().toString(36).substr(2, 9),
+    myDriverName: localStorage.getItem('flycabs_name') || "Driver " + Math.floor(Math.random() * 1000)
 };
+
+// Save ID immediately if new
+if (!localStorage.getItem('flycabs_id')) {
+    localStorage.setItem('flycabs_id', window.FlyCabsState.myDriverId);
+    localStorage.setItem('flycabs_name', window.FlyCabsState.myDriverName);
+}
 
 // Global Logic
 window.updateView = function () {
@@ -36,24 +44,42 @@ window.updateView = function () {
 };
 
 window.toggleDriverStatus = async function () {
+    // 1. Name Check: If default name, allow user to set it once
+    if (window.FlyCabsState.myDriverName.startsWith("Driver ")) {
+        const newName = prompt("Enter your Name for the Driver Roster:", window.FlyCabsState.myDriverName);
+        if (newName && newName.trim() !== "") {
+            window.FlyCabsState.myDriverName = newName.trim();
+            localStorage.setItem('flycabs_name', window.FlyCabsState.myDriverName);
+        }
+    }
+
     window.FlyCabsState.isDriverActive = !window.FlyCabsState.isDriverActive;
+
+    // 2. Persist Status
+    localStorage.setItem('flycabs_status', window.FlyCabsState.isDriverActive);
+
     const statusText = document.getElementById('driver-status-text');
     const statusBulb = document.getElementById('status-bulb');
 
     document.body.classList.toggle('driver-active', window.FlyCabsState.isDriverActive);
     if (statusText) statusText.textContent = window.FlyCabsState.isDriverActive ? "You are Online" : "You are Offline";
 
-    window.fetchDrivers = async function () {
-        try {
-            const res = await fetch('/api/drivers');
-            if (res.ok) {
-                window.FlyCabsState.drivers = await res.json();
-                window.renderDrivers();
-            }
-        } catch (e) {
-            console.error("Failed to fetch drivers:", e);
-        }
-    };
+    // Sync with Server
+    try {
+        await fetch('/api/driver/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: window.FlyCabsState.myDriverId,
+                name: window.FlyCabsState.myDriverName,
+                car: "Local Driver",
+                active: window.FlyCabsState.isDriverActive
+            })
+        });
+        window.fetchDrivers();
+    } catch (e) {
+        console.error("Failed to sync driver status:", e);
+    }
 
     window.renderRequests();
 };
@@ -166,7 +192,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "20.0.0";
+    const APP_VERSION = "20.1.0";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -305,4 +331,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     window.updateView();
+
+    // Auto-Restore Online Status if needed
+    if (window.FlyCabsState.isDriverActive) {
+        // Optimistic UI Update
+        document.body.classList.add('driver-active');
+        const statusText = document.getElementById('driver-status-text');
+        if (statusText) statusText.textContent = "You are Online";
+
+        // Re-announce to server
+        fetch('/api/driver/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: window.FlyCabsState.myDriverId,
+                name: window.FlyCabsState.myDriverName,
+                car: "Local Driver",
+                active: true
+            })
+        }).catch(e => console.error("Failed to restore online status:", e));
+    }
 });
