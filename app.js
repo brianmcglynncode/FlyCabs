@@ -43,22 +43,17 @@ window.toggleDriverStatus = async function () {
     document.body.classList.toggle('driver-active', window.FlyCabsState.isDriverActive);
     if (statusText) statusText.textContent = window.FlyCabsState.isDriverActive ? "You are Online" : "You are Offline";
 
-    // Sync with Server
-    try {
-        await fetch('/api/driver/status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id: window.FlyCabsState.myDriverId,
-                name: "User " + window.FlyCabsState.myDriverId.substr(0, 4),
-                car: "Local Driver",
-                active: window.FlyCabsState.isDriverActive
-            })
-        });
-        window.fetchDrivers(); // Update roster immediately
-    } catch (e) {
-        console.error("Failed to sync driver status:", e);
-    }
+    window.fetchDrivers = async function () {
+        try {
+            const res = await fetch('/api/drivers');
+            if (res.ok) {
+                window.FlyCabsState.drivers = await res.json();
+                window.renderDrivers();
+            }
+        } catch (e) {
+            console.error("Failed to fetch drivers:", e);
+        }
+    };
 
     window.renderRequests();
 };
