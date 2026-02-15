@@ -56,7 +56,16 @@ self.addEventListener('fetch', (event) => {
     );
     // --- Web Push ---
     self.addEventListener('push', event => {
-        console.log('[SW] Push Received!', event.data ? event.data.text() : 'No Data');
+        const text = event.data ? event.data.text() : 'No Data';
+        console.log('[SW] Push Received!', text);
+
+        // Broadcast to Window for UI Debugging
+        self.clients.matchAll().then(clients => {
+            clients.forEach(client => client.postMessage({
+                type: 'DEBUG_LOG',
+                msg: `[SW] Push Received: ${text.substring(0, 20)}...`
+            }));
+        });
 
         const data = event.data ? event.data.json() : {};
         const title = data.title || 'FlyCabs Update';
@@ -64,12 +73,29 @@ self.addEventListener('fetch', (event) => {
             body: data.body || 'New activity on FlyCabs.',
             icon: './icon.png',
             badge: './icon.png',
+            vibrate: [200, 100, 200], // Vibration pattern
             data: { url: data.url || '/' }
         };
 
         event.waitUntil(self.registration.showNotification(title, options)
-            .then(() => console.log('[SW] Notification Shown'))
-            .catch(err => console.error('[SW] Notification Error:', err))
+            .then(() => {
+                console.log('[SW] Notification Shown');
+                self.clients.matchAll().then(clients => {
+                    clients.forEach(client => client.postMessage({
+                        type: 'DEBUG_LOG',
+                        msg: `[SW] Notification Request Sent to OS`
+                    }));
+                });
+            })
+            .catch(err => {
+                console.error('[SW] Notification Error:', err);
+                self.clients.matchAll().then(clients => {
+                    clients.forEach(client => client.postMessage({
+                        type: 'DEBUG_LOG',
+                        msg: `[SW] Show Error: ${err.message}`
+                    }));
+                });
+            })
         );
     });
 

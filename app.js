@@ -717,7 +717,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.42";
+    const APP_VERSION = "23.0.43";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -841,6 +841,13 @@ document.addEventListener('DOMContentLoaded', () => {
             debugConsole.scrollTop = debugConsole.scrollHeight;
         }
     }
+
+    // Capture SW Logs
+    navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'DEBUG_LOG') {
+            logDebug(event.data.msg);
+        }
+    });
 
     if (enableNotifsBtn) {
         enableNotifsBtn.addEventListener('click', async () => {
