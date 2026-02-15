@@ -4,7 +4,7 @@
     "description": "Trusted lifts for family and friends.",
     "main": "index.html",
     "scripts": {
-        "start": "npx -y http-server . -p $PORT"
+        "start": "node server.js"
     },
     "dependencies": {
         "express": "^5.2.1",
