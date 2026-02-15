@@ -576,10 +576,34 @@ window.completeTripDriver = function () {
             btn.disabled = false;
             btn.style.background = ""; // Default
 
-            alert("Trip Completed! Earnings added.");
+            // --- Earnings Logic ---
+            const priceText = document.getElementById('active-trip-price').textContent;
+            const price = parseFloat(priceText.replace(/[^0-9.]/g, '')) || 0;
+
+            // Update State
+            window.FlyCabsState.earnings = (window.FlyCabsState.earnings || 0) + price;
+            window.FlyCabsState.trips = (window.FlyCabsState.trips || 0) + 1;
+
+            // Save to LocalStorage
+            localStorage.setItem('flycabs_earnings', window.FlyCabsState.earnings.toFixed(2));
+            localStorage.setItem('flycabs_trips', window.FlyCabsState.trips);
+
+            // Update UI
+            window.updateEarningsUI();
+
+            alert(`Trip Completed! You earned €${price.toFixed(2)}.`);
         }, 1500);
     }, 2000);
 };
+
+window.updateEarningsUI = function () {
+    const earnings = window.FlyCabsState.earnings || 0;
+    const trips = window.FlyCabsState.trips || 0;
+    document.getElementById('driver-earnings-display').textContent = earnings.toFixed(2);
+    document.getElementById('driver-trips-display').textContent = trips;
+};
+
+// ... existing acceptRequest logic ...
 
 window.acceptRequest = async function (index) {
     const req = window.FlyCabsState.activeRequests[index];
@@ -657,7 +681,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.25";
+    const APP_VERSION = "23.0.26";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
