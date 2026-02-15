@@ -41,7 +41,10 @@
             <!-- Passenger View -->
             <section id="view-passenger" class="active">
                 <div class="hero-section">
-                    <h1>Where to next?</h1>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h1 id="passenger-welcome-name" style="margin:0; font-size:1.8rem;">Hi, Passenger</h1>
+                        <button class="edit-btn" onclick="window.editPassengerName()">✏️</button>
+                    </div>
                     <p>Request a lift from your trusted circle.</p>
                 </div>
 
@@ -175,7 +178,7 @@
 
             <!-- Version Info (Hidden Troubleshooting) -->
             <div class="app-version-info">
-                <span>Version 21.6.0 (State Hardened)</span>
+                <span>Version 22.0.0 (Identity Update)</span>
                 <button onclick="window.nuclearReset()" class="reset-link">Reset App Data & Update</button>
             </div>
         </main>

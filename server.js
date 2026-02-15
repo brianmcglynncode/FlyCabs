@@ -45,13 +45,14 @@ app.get('/api/requests', (req, res) => {
 
 // Create a new request
 app.post('/api/request', (req, res) => {
-    const { from, to, price, passengerId } = req.body;
+    const { from, to, price, passengerId, passengerName } = req.body;
     const newRequest = {
         id: Date.now().toString(), // Simple ID
         from,
         to,
         price,
         passengerId,
+        passengerName,
         status: 'pending',
         driverName: null,
         timestamp: Date.now()

@@ -10,8 +10,9 @@ window.FlyCabsState = {
     activeRequests: [],
     // Passenger Context
     currentRequestId: null,
+    myPassengerName: localStorage.getItem('flycabs_passenger_name') || "Passenger " + Math.floor(Math.random() * 1000),
     // Persist Identity: Get existing ID or generate new one
-    myDriverId: localStorage.getItem('flycabs_id') || 'driver-' + Math.random().toString(36).substr(2, 9),
+    myDriverId: localStorage.getItem('flycabs_id') || 'user-' + Math.random().toString(36).substr(2, 9),
     myDriverName: localStorage.getItem('flycabs_name') || "Driver " + Math.floor(Math.random() * 1000)
 };
 
@@ -19,7 +20,51 @@ window.FlyCabsState = {
 if (!localStorage.getItem('flycabs_id')) {
     localStorage.setItem('flycabs_id', window.FlyCabsState.myDriverId);
     localStorage.setItem('flycabs_name', window.FlyCabsState.myDriverName);
+    localStorage.setItem('flycabs_passenger_name', window.FlyCabsState.myPassengerName);
 }
+
+// ... global logic ...
+
+window.editPassengerName = function () {
+    const currentName = window.FlyCabsState.myPassengerName;
+    const newName = prompt("Enter your Name for Drivers to see:", currentName.startsWith("Passenger ") ? "" : currentName);
+    if (newName && newName.trim() !== "") {
+        window.FlyCabsState.myPassengerName = newName.trim();
+        localStorage.setItem('flycabs_passenger_name', window.FlyCabsState.myPassengerName);
+        document.getElementById('passenger-welcome-name').textContent = `Hi, ${window.FlyCabsState.myPassengerName}`;
+    }
+};
+
+// ... fetchRequests ...
+
+window.renderRequests = function () {
+    const requestList = document.getElementById('request-list');
+    if (!requestList) return;
+
+    if (!window.FlyCabsState.isDriverActive) {
+        requestList.innerHTML = `<div class="empty-state"><p>Turn on visibility to receive requests.</p></div>`;
+        return;
+    }
+
+    // Filter out my own requests
+    const othersRequests = window.FlyCabsState.activeRequests.filter(req => req.passengerId !== window.FlyCabsState.myDriverId);
+
+    if (othersRequests.length === 0) {
+        requestList.innerHTML = `<div class="empty-state"><p>No active requests nearby.</p></div>`;
+        return;
+    }
+
+    requestList.innerHTML = othersRequests.map((req, index) => `
+        <div class="card request-card" style="background: #F5F7FA; padding: 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 15px;">
+            <div class="user-info">
+                <strong>${req.passengerName || 'Passenger'}</strong><br>
+                <span>${req.from} → ${req.to}</span>
+            </div>
+            <div class="bid-amount" style="margin: 10px 0; color: #1A1A2E; font-weight: 700;">Suggested: €${req.price}</div>
+            <button class="primary-btn" onclick="window.acceptRequest(${index})" style="padding: 10px;">Accept Lift</button>
+        </div>
+    `).join('');
+};
 
 // Global Logic
 window.updateView = function () {
@@ -344,7 +389,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "21.6.0";
+    const APP_VERSION = "22.0.0";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -369,7 +414,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await fetch('/api/request', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ from: fromLoc, to: toLoc, price })
+                    body: JSON.stringify({
+                        from: fromLoc,
+                        to: toLoc,
+                        price,
+                        passengerId: window.FlyCabsState.myDriverId, // Reuse ID as user ID
+                        passengerName: window.FlyCabsState.myPassengerName
+                    })
                 });
                 const data = await res.json();
 
@@ -500,7 +551,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    // Initialize View
     window.updateView();
+
+    // Init Passenger Name
+    const pNameEl = document.getElementById('passenger-welcome-name');
+    if (pNameEl) pNameEl.textContent = `Hi, ${window.FlyCabsState.myPassengerName}`;
 
     // Auto-Restore Online Status if needed
     if (window.FlyCabsState.isDriverActive) {
