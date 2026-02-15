@@ -287,13 +287,15 @@ body.driver-active .status-indicator {
 
 /* Bottom Sheet */
 .bottom-sheet {
-    position: fixed;
+    position: absolute;
+    /* Changed from fixed to respect #app container width */
     bottom: 0;
     left: 0;
     right: 0;
     background: white;
     box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
-    z-index: 100;
+    z-index: 200;
+    /* Ensure above nav */
     border-radius: 32px 32px 0 0;
     transform: translateY(100%);
     transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
