@@ -717,7 +717,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.40";
+    const APP_VERSION = "23.0.41";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -979,20 +979,20 @@ window.subscribeUserToPush = async function () {
         const register = await navigator.serviceWorker.ready;
 
         // Check if existing sub
-        const existingSub = await register.pushManager.getSubscription();
-        if (existingSub) {
-            console.log("[FlyCabs] Already subscribed to push");
-            return; // Already good
+        let subscription = await register.pushManager.getSubscription();
+
+        if (!subscription) {
+            subscription = await register.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+            });
+            console.log("[FlyCabs] New Push Subscribed!");
+        } else {
+            console.log("[FlyCabs] Existing Push Subscription found.");
         }
 
-        const subscription = await register.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-        });
-
-        console.log("[FlyCabs] Push Subscribed!");
-
-        // Send to Server
+        // ALWAYS Send to Server (in case server restarted and lost it)
+        console.log("[FlyCabs] Syncing subscription to server...");
         await fetch('/api/subscribe?driverId=' + window.FlyCabsState.myDriverId, {
             method: 'POST',
             body: JSON.stringify(subscription),
@@ -1000,6 +1000,8 @@ window.subscribeUserToPush = async function () {
                 'content-type': 'application/json'
             }
         });
+        console.log("[FlyCabs] Subscription Synced!");
+
     } catch (e) {
         console.error("Push Sub Failed:", e);
     }
