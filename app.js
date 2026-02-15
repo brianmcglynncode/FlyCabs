@@ -118,12 +118,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const pwaHint = document.getElementById('pwa-hint');
 
     // Detect iOS & Mobile Safari
-    const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+    console.log(`[FlyCabs] Platform Info: iOS=${isIOS}, Standalone=${isStandalone}`);
 
     if (isIOS) {
         document.body.classList.add('is-ios');
-        const shareIcon = '⎋'; // Approximated Share Icon
+        const shareIcon = '⎋';
         pwaHint.innerHTML = `Tap the <span style="background: #E2E8F0; padding: 2px 6px; border-radius: 4px;">${shareIcon}</span> icon then <strong>"Add to Home Screen"</strong>`;
     }
 
@@ -131,18 +134,20 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         deferredPrompt = e;
         if (!isStandalone) {
-            console.log("[FlyCabs] PWA Install Prompt Available.");
+            console.log("[FlyCabs] Android/Chrome Install Prompt Available.");
             pwaBanner.classList.remove('hidden');
         }
     });
 
     // Forced display for iOS (since they don't have beforeinstallprompt)
-    if (isIOS && !isStandalone && !localStorage.getItem('pwa_banner_closed')) {
-        console.log("[FlyCabs] iOS detected, showing installation hint.");
-        // Short delay to ensure browser rendering is stable
+    // REMOVED localstorage check for debugging
+    if (isIOS && !isStandalone) {
+        console.log("[FlyCabs] Showing iOS installation hint...");
         setTimeout(() => {
             pwaBanner.classList.remove('hidden');
-        }, 1000);
+            // Force layout recalculation
+            pwaBanner.style.display = 'block';
+        }, 1500);
     }
 
     pwaBtn.addEventListener('click', async () => {
