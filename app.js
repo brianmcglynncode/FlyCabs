@@ -8,6 +8,8 @@ window.FlyCabsState = {
     deferredPrompt: null,
     drivers: [],
     activeRequests: [],
+    // Passenger Context
+    currentRequestId: null,
     // Persist Identity: Get existing ID or generate new one
     myDriverId: localStorage.getItem('flycabs_id') || 'driver-' + Math.random().toString(36).substr(2, 9),
     myDriverName: localStorage.getItem('flycabs_name') || "Driver " + Math.floor(Math.random() * 1000)
@@ -136,7 +138,9 @@ window.fetchDrivers = async function () {
 setInterval(() => {
     window.fetchDrivers();
     if (window.FlyCabsState.isDriverActive) window.fetchRequests();
+    if (window.FlyCabsState.currentRequestId) window.checkRequestStatus();
 }, 3000);
+
 // Initial fetch
 window.fetchDrivers();
 
@@ -204,6 +208,33 @@ window.renderRequests = function () {
     `).join('');
 };
 
+window.checkRequestStatus = async function () {
+    if (!window.FlyCabsState.currentRequestId) return;
+
+    try {
+        const res = await fetch(`/api/request/${window.FlyCabsState.currentRequestId}/status`);
+        const data = await res.json();
+
+        if (data.status === 'accepted') {
+            // Update UI -> Accepted
+            document.getElementById('passenger-waiting-card').classList.add('hidden');
+            document.getElementById('passenger-accepted-card').classList.remove('hidden');
+            document.getElementById('accepted-driver-name').textContent = data.driverName || "A Driver";
+
+            // Clear request ID so we stop polling
+            window.FlyCabsState.currentRequestId = null;
+        }
+    } catch (e) {
+        console.error("Poll status failed:", e);
+    }
+};
+
+window.resetPassengerFlow = function () {
+    document.getElementById('passenger-accepted-card').classList.add('hidden');
+    document.querySelector('.hero-section').classList.remove('hidden');
+    window.FlyCabsState.currentRequestId = null;
+};
+
 window.acceptRequest = async function (index) {
     const req = window.FlyCabsState.activeRequests[index];
     if (confirm(`Accept lift for €${req.price}?`)) {
@@ -211,7 +242,10 @@ window.acceptRequest = async function (index) {
             await fetch('/api/request/accept', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ index })
+                body: JSON.stringify({
+                    id: req.id, // Use actual ID
+                    driverName: window.FlyCabsState.myDriverName
+                })
             });
             alert(`Lift Accepted! Head to ${req.from}.`);
             window.fetchRequests();
@@ -253,7 +287,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "21.2.0";
+    const APP_VERSION = "21.3.0";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -274,16 +308,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const fromLoc = document.getElementById('request-from').value || "Current Location";
             const toLoc = document.getElementById('request-to').value || "Destination";
 
-            // Optimistic Update (Optional, but let's wait for server to be safe)
             try {
-                await fetch('/api/request', {
+                const res = await fetch('/api/request', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ from: fromLoc, to: toLoc, price })
                 });
-                alert(`Requesting a lift from ${fromLoc} to ${toLoc} (€${price})!`);
-                if (broadcastModal) broadcastModal.classList.add('hidden');
-                window.fetchRequests(); // Trigger immediate update
+                const data = await res.json();
+
+                if (data.success) {
+                    window.FlyCabsState.currentRequestId = data.requestId;
+
+                    // UI: Hide Form, Show Waiting
+                    if (broadcastModal) broadcastModal.classList.add('hidden');
+                    document.getElementById('passenger-waiting-card').classList.remove('hidden');
+                    document.querySelector('.hero-section').classList.add('hidden'); // Hide normal hero
+
+                    alert(`Request sent! Waiting for drivers...`);
+                }
             } catch (e) {
                 console.error("Failed to send request:", e);
                 alert("Failed to send request. Check connection.");

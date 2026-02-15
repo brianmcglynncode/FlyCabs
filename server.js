@@ -38,27 +38,58 @@ app.post('/api/driver/status', (req, res) => {
 // Request Management
 let activeRequests = [];
 
-// Get active requests
+// Get active requests (only pending ones for drivers)
 app.get('/api/requests', (req, res) => {
-    res.json(activeRequests);
+    res.json(activeRequests.filter(r => r.status === 'pending'));
 });
 
 // Create a new request
 app.post('/api/request', (req, res) => {
-    const { from, to, price, passengerId } = req.body; // passengerId optional for now
-    activeRequests.push({ from, to, price, timestamp: Date.now() });
+    const { from, to, price, passengerId } = req.body;
+    const newRequest = {
+        id: Date.now().toString(), // Simple ID
+        from,
+        to,
+        price,
+        passengerId,
+        status: 'pending',
+        driverName: null,
+        timestamp: Date.now()
+    };
+    activeRequests.push(newRequest);
+
+    // Cleanup old requests (> 10 mins)
+    const tenMinutesAgo = Date.now() - 600000;
+    activeRequests = activeRequests.filter(r => r.timestamp > tenMinutesAgo);
+
     console.log(`[Server] New Request: ${from} -> ${to} (€${price})`);
-    res.json({ success: true, count: activeRequests.length });
+    res.json({ success: true, requestId: newRequest.id });
 });
 
-// Accept/Remove a request (simplistic: remove by index or matching props)
-app.post('/api/request/accept', (req, res) => {
-    const { index } = req.body;
-    if (index >= 0 && index < activeRequests.length) {
-        const removed = activeRequests.splice(index, 1);
-        console.log(`[Server] Request Accepted/Removed: ${removed[0].from} -> ${removed[0].to}`);
+// Check status of a specific request
+app.get('/api/request/:id/status', (req, res) => {
+    const reqId = req.params.id;
+    const request = activeRequests.find(r => r.id === reqId);
+    if (request) {
+        res.json({ status: request.status, driverName: request.driverName });
+    } else {
+        res.json({ status: 'not_found' });
     }
-    res.json({ success: true });
+});
+
+// Accept a request
+app.post('/api/request/accept', (req, res) => {
+    const { id, driverName } = req.body;
+    const request = activeRequests.find(r => r.id === id);
+
+    if (request && request.status === 'pending') {
+        request.status = 'accepted';
+        request.driverName = driverName;
+        console.log(`[Server] Request ${id} accepted by ${driverName}`);
+        res.json({ success: true });
+    } else {
+        res.json({ success: false, message: "Request not available" });
+    }
 });
 
 // Fallback for SPA

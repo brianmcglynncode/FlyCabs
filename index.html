@@ -56,6 +56,27 @@
                     </div>
                 </div>
 
+                <!-- Waiting for Driver State -->
+                <div id="passenger-waiting-card" class="card status-card hidden"
+                    style="text-align:center; padding: 40px 20px;">
+                    <div class="status-indicator pulse"
+                        style="background:var(--sunset-gold); width:16px; height:16px; margin:0 auto 20px;"></div>
+                    <h3>Contacting Drivers...</h3>
+                    <p>Hang tight, we're broadcasting your request.</p>
+                </div>
+
+                <!-- Driver Found State -->
+                <div id="passenger-accepted-card" class="card status-card hidden"
+                    style="text-align:center; padding: 40px 20px; background: #E8F8F5;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🚕</div>
+                    <h3 style="color: var(--success);">Driver on the way!</h3>
+                    <p id="accepted-driver-name" style="font-weight: 700; font-size: 1.2rem; margin: 10px 0;">Driver
+                        Name</p>
+                    <p>They will be there shortly.</p>
+                    <button class="primary-btn" onclick="window.resetPassengerFlow()"
+                        style="margin-top:20px; background:var(--success);">Awesome!</button>
+                </div>
+
                 <!-- Updated Drivers Nearby Summary -->
                 <div class="available-drivers-summary">
                     <div class="summary-card" onclick="window.showDriverRoster()">
@@ -147,7 +168,7 @@
 
             <!-- Version Info (Hidden Troubleshooting) -->
             <div class="app-version-info">
-                <span>Version 21.2.0 (Live Requests)</span>
+                <span>Version 21.3.0 (Passenger Flow)</span>
                 <button onclick="window.nuclearReset()" class="reset-link">Reset App Data & Update</button>
             </div>
         </main>
