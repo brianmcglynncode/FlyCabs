@@ -26,7 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 3, name: "John", car: "BMW iX", active: false }
     ];
 
+    // Expose updateView globally for the HTML fallback
+    window.updateView = updateView;
+
     function updateView() {
+        if (!roleToggle) return;
         if (roleToggle.checked) {
             currentRole = 'DRIVER';
             modeText.textContent = "Driver Mode";
@@ -67,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderDrivers() {
         const driverList = document.getElementById('driver-list');
+        if (!driverList) return;
         const activeDrivers = drivers.filter(d => d.active);
 
         if (activeDrivers.length === 0) {
@@ -121,20 +126,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const isIOS = /iphone|ipad|ipod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-    // Hide cards if already installed
-    if (isStandalone) {
-        installCards.forEach(card => card.classList.add('hidden'));
-    } else {
-        // Show cards for all mobile/installable users initially or after detection
-        if (isIOS) {
-            installCards.forEach(card => card.classList.remove('hidden'));
-        }
+    // Show cards for EVERYONE not in standalone mode (including PC)
+    if (!isStandalone) {
+        console.log("[FlyCabs] Not in standalone mode. Showing install options.");
+        installCards.forEach(card => card.classList.remove('hidden'));
     }
 
     window.addEventListener('beforeinstallprompt', (e) => {
+        console.log("[FlyCabs] beforeinstallprompt fired.");
         e.preventDefault();
         deferredPrompt = e;
-        // Show cards for Android/Chrome users
         if (!isStandalone) {
             installCards.forEach(card => card.classList.remove('hidden'));
         }
@@ -154,6 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     installCards.forEach(c => c.classList.add('hidden'));
                 }
                 deferredPrompt = null;
+            } else {
+                // PC / Generic fallback if no prompt
+                alert("To install: Use your browser's 'Install' or 'Add to Home Screen' option in the menu.");
             }
         });
     });
@@ -162,13 +166,12 @@ document.addEventListener('DOMContentLoaded', () => {
         iosGuide.classList.add('hidden');
     });
 
-    // Close modal on background click
     iosGuide.addEventListener('click', (e) => {
         if (e.target === iosGuide) iosGuide.classList.add('hidden');
     });
 
-    // Restore missing toggle listeners
-    roleToggle.addEventListener('change', updateView);
+    // Bind listeners and init
+    if (roleToggle) roleToggle.addEventListener('change', updateView);
     if (statusBulb) statusBulb.parentElement.addEventListener('click', toggleDriverStatus);
 
     updateView();

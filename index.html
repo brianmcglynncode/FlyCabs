@@ -29,7 +29,7 @@
             <div class="mode-toggle">
                 <span class="mode-label" id="mode-text">Passenger</span>
                 <label class="switch">
-                    <input type="checkbox" id="role-toggle">
+                    <input type="checkbox" id="role-toggle" onchange="if(window.updateView) window.updateView()">
                     <span class="slider round"></span>
                 </label>
             </div>
