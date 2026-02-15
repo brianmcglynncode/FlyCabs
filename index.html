@@ -110,43 +110,38 @@
                     </div>
                 </div>
 
-                <!-- Enhanced Request Modal -->
-                <div id="request-modal" class="bottom-sheet hidden">
-                    <div class="sheet-content">
-                        <div class="handle"></div>
-                        <h2>Request a Lift</h2>
+                <!-- MAIN ACTION: Static Request Form (Bottom of Flow) -->
+                <div id="request-modal" class="card static-request-card" style="margin-bottom: 24px;">
+                    <h2>Request a Lift</h2>
 
-                        <div class="input-group location-group">
-                            <label>From</label>
-                            <div class="location-input-row">
-                                <input type="text" id="request-from" placeholder="Current Location">
-                                <button class="home-btn" onclick="window.useGPS()">📍 GPS</button>
-                            </div>
-                        </div>
-
-                        <div class="input-group location-group">
-                            <label>To</label>
-                            <div class="location-input-row">
-                                <input type="text" id="request-to" placeholder="Where to?">
-                                <button class="home-btn"
-                                    onclick="document.getElementById('request-to').value = 'HOME'">🏠 HOME</button>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label>Suggest a Price</label>
-                            <div class="price-input">
-                                <span class="currency">€</span>
-                                <input type="number" id="suggested-price" placeholder="10.00" value="15.00">
-                            </div>
-                        </div>
-                        <button id="send-broadcast-btn" class="primary-btn">Request Now</button>
-                        <div class="debug-footer">
-                            <span onclick="window.location.reload(true)">Not seeing new features? Tap here to
-                                refresh.</span>
+                    <div class="input-group location-group">
+                        <label>From</label>
+                        <div class="location-input-row">
+                            <input type="text" id="request-from" placeholder="Current Location">
+                            <button class="home-btn" onclick="window.useGPS()">📍 GPS</button>
                         </div>
                     </div>
+
+                    <div class="input-group location-group">
+                        <label>To</label>
+                        <div class="location-input-row">
+                            <input type="text" id="request-to" placeholder="Where to?">
+                            <button class="home-btn" onclick="document.getElementById('request-to').value = 'HOME'">🏠
+                                HOME</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Suggest a Price</label>
+                        <div class="price-input">
+                            <span class="currency">€</span>
+                            <input type="number" id="suggested-price" placeholder="10.00" value="15.00">
+                        </div>
+                    </div>
+                    <button id="send-broadcast-btn" class="primary-btn">Request Now</button>
                 </div>
+
+                <!-- Request Card moved to bottom -->
             </section>
 
             <!-- Driver View -->
@@ -197,7 +192,7 @@
 
             <!-- Version Info (Hidden Troubleshooting) -->
             <div class="app-version-info">
-                <span>Version 23.0.13 (Static Layout)</span>
+                <span>Version 23.0.14 (Order Fix)</span>
                 <button onclick="window.nuclearReset()" class="reset-link">Reset App Data & Update</button>
             </div>
         </main>
