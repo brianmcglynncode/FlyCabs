@@ -444,3 +444,146 @@ body.is-ios .install-trigger-btn {
     background: var(--sky-blue);
     color: var(--deep-night);
 }
+
+/* Broadcast Experience */
+.available-drivers-summary {
+    margin: 20px 0;
+}
+
+.summary-card {
+    background: white;
+    padding: 18px 25px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    border: 1px solid rgba(163, 216, 244, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.summary-card:active {
+    transform: scale(0.98);
+}
+
+.summary-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    background: #2ECC71;
+    border-radius: 50%;
+}
+
+.pulse {
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(46, 204, 113, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+    }
+}
+
+#drivers-online-count {
+    font-weight: 700;
+    color: var(--deep-night);
+    font-size: 1.1rem;
+}
+
+.view-all {
+    font-size: 0.9rem;
+    color: var(--sky-blue);
+    font-weight: 600;
+}
+
+.broadcast-section {
+    margin: 30px 0;
+}
+
+.broadcast-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--deep-night), #2C3E50);
+    color: white;
+    border: none;
+    padding: 24px;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 15px 35px rgba(26, 26, 46, 0.2);
+    transition: transform 0.2s;
+}
+
+.broadcast-btn:active {
+    transform: scale(0.96);
+}
+
+.btn-icon {
+    font-size: 1.8rem;
+}
+
+.btn-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.btn-subtext {
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+.roster-list {
+    margin: 20px 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.roster-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: var(--soft-gray);
+    border-radius: 16px;
+    margin-bottom: 12px;
+}
+
+.roster-avatar {
+    font-size: 1.5rem;
+    background: white;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+}
+
+.roster-info strong {
+    display: block;
+    color: var(--deep-night);
+}
+
+.roster-info span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
