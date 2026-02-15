@@ -438,6 +438,11 @@ window.checkRequestStatus = async function () {
             });
             // DO NOT CLEAR REQUEST ID HERE! We need it for chat.
             // window.FlyCabsState.currentRequestId = null; 
+        } else if (data.status === 'completed') {
+            // Driver finished the trip
+            console.log("[Passenger] Trip Completed detected!");
+            alert("Trip Completed by Driver. Thank you for using FlyCabs! 🚕");
+            window.resetPassengerFlow();
         }
     } catch (e) {
         console.error("Poll status failed:", e);
@@ -681,7 +686,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.29";
+    const APP_VERSION = "23.0.30";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
