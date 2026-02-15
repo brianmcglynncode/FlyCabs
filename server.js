@@ -66,11 +66,20 @@ app.post('/api/subscribe', (req, res) => {
 
 // Trigger Notification Helper
 const sendPushToDrivers = (message) => {
-    console.log(`[Server] Sending Push: ${message}`);
-    // Ideally filter by 'active' drivers only, but for now broadcast to all subs
+    console.log(`[Server] 📣 Sending Push to ${pushSubscriptions.length} drivers: ${message}`);
+
     pushSubscriptions.forEach(s => {
         const payload = JSON.stringify({ title: 'New Lift Request! 🚕', body: message });
-        webpush.sendNotification(s.sub, payload).catch(err => console.error("Push Error", err));
+        webpush.sendNotification(s.sub, payload)
+            .then(res => console.log(`[Server] Push Sent to ${s.id}: ${res.statusCode}`))
+            .catch(err => {
+                console.error(`[Server] Push Failed to ${s.id}:`, err);
+                if (err.statusCode === 410) {
+                    // Cleanup dead subs
+                    console.log(`[Server] Removing dead sub ${s.id}`);
+                    pushSubscriptions = pushSubscriptions.filter(sub => sub.sub.endpoint !== s.sub.endpoint);
+                }
+            });
     });
 };
 

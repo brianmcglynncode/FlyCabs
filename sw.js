@@ -56,6 +56,8 @@ self.addEventListener('fetch', (event) => {
     );
     // --- Web Push ---
     self.addEventListener('push', event => {
+        console.log('[SW] Push Received!', event.data ? event.data.text() : 'No Data');
+
         const data = event.data ? event.data.json() : {};
         const title = data.title || 'FlyCabs Update';
         const options = {
@@ -65,7 +67,10 @@ self.addEventListener('fetch', (event) => {
             data: { url: data.url || '/' }
         };
 
-        event.waitUntil(self.registration.showNotification(title, options));
+        event.waitUntil(self.registration.showNotification(title, options)
+            .then(() => console.log('[SW] Notification Shown'))
+            .catch(err => console.error('[SW] Notification Error:', err))
+        );
     });
 
     self.addEventListener('notificationclick', event => {
