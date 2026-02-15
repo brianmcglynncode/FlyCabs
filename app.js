@@ -480,7 +480,14 @@ window.pollChat = async function () {
         const res = await fetch(`/api/chat/${window.FlyCabsState.currentRequestId}`);
         if (res.ok) {
             const messages = await res.json();
-            const role = window.FlyCabsState.isDriverActive ? 'driver' : 'passenger';
+
+            // Fix: Determine role based on ACTIVE VIEW, not just driver status
+            const isDriverView = document.getElementById('view-driver').classList.contains('active');
+            const role = isDriverView ? 'driver' : 'passenger';
+
+            // Console Debugging (Remove in prod)
+            // console.log(`[Chat Poll] Role: ${role}, Msgs: ${messages.length}`);
+
             window.renderChat(messages, role);
         }
     } catch (e) {
@@ -616,7 +623,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.21";
+    const APP_VERSION = "23.0.22";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
