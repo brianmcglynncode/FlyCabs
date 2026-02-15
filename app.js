@@ -426,9 +426,12 @@ window.checkRequestStatus = async function () {
         const data = await res.json();
 
         if (data.status === 'accepted') {
-            window.updatePassengerUI('ACCEPTED', { driverName: data.driverName });
-            // Clear request ID so we stop polling
-            window.FlyCabsState.currentRequestId = null;
+            window.updatePassengerUI('ACCEPTED', {
+                driverName: data.driverName,
+                driverPic: data.driverPic
+            });
+            // DO NOT CLEAR REQUEST ID HERE! We need it for chat.
+            // window.FlyCabsState.currentRequestId = null; 
         }
     } catch (e) {
         console.error("Poll status failed:", e);
@@ -457,7 +460,7 @@ window.cancelRequest = async function () {
 
 window.resetPassengerFlow = function () {
     console.log("[FlyCabs] Resetting passenger flow (Trip Complete)");
-    window.FlyCabsState.currentRequestId = null;
+    window.FlyCabsState.currentRequestId = null; // THIS is where we clear it.
     window.updatePassengerUI('HOME');
 };
 
@@ -607,7 +610,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.18";
+    const APP_VERSION = "23.0.19";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
