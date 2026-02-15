@@ -305,7 +305,8 @@ body.driver-active .status-indicator {
     transform: translateY(100%);
     transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
     /* Fix: Ensure it doesn't exceed viewport and scrolls if needed */
-    max-height: 90vh;
+    max-height: 65vh;
+    /* Reduced from 90vh to show Hero section */
     display: flex;
     flex-direction: column;
 }
@@ -351,6 +352,9 @@ body.driver-active .status-indicator {
     padding: 16px 8px 32px;
     background: white;
     border-top: 1px solid var(--soft-gray);
+    position: relative;
+    z-index: 300;
+    /* Ensure above bottom sheet */
 }
 
 .nav-item {
