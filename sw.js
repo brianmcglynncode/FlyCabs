@@ -73,7 +73,6 @@ self.addEventListener('fetch', (event) => {
             body: data.body || 'New activity on FlyCabs.',
             icon: './icon.png',
             badge: './icon.png',
-            vibrate: [200, 100, 200], // Vibration pattern
             data: { url: data.url || '/' }
         };
 

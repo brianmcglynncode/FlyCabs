@@ -740,7 +740,7 @@ window.forceResubscribe = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.44";
+    const APP_VERSION = "23.0.45";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -855,6 +855,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // Manual Notification Trigger for iOS Debugging
     const enableNotifsBtn = document.getElementById('enable-notifications-btn');
     const debugConsole = document.getElementById('debug-console');
+
+    window.diagnoseSW = async function () {
+        if (debugConsole) debugConsole.style.display = 'block';
+        const log = (m) => debugConsole.innerHTML += `<div>* ${m}</div>`;
+
+        log("--- DIAGNOSTICS ---");
+        if (!('serviceWorker' in navigator)) {
+            log("❌ No SW Support");
+            return;
+        }
+
+        const reg = await navigator.serviceWorker.ready;
+        log(`SW Status: ${reg ? 'Active ✅' : 'Missing ❌'}`);
+        if (reg) {
+            log(`Scope: ${reg.scope}`);
+            const sub = await reg.pushManager.getSubscription();
+            log(`Push Sub: ${sub ? 'Found ✅' : 'Missing ❌'}`);
+            if (sub) log(`Endpoint: ...${sub.endpoint.slice(-10)}`);
+        }
+        log(`Notification Permission: ${Notification.permission}`);
+        log("-------------------");
+    }
 
     const logDebug = (msg) => {
         console.log(msg);
