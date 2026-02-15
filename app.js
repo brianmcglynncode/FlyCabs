@@ -717,7 +717,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.39";
+    const APP_VERSION = "23.0.40";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -865,7 +865,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         alert("Notifications Enabled! 🔔");
                     }
 
-                    enableNotifsBtn.style.display = 'none';
+                    enableNotifsBtn.innerText = "🔔 Test Notification";
                 } else {
                     alert("Notifications Blocked. Please go to iPhone Settings > FlyCabs > Notifications and enable them.");
                 }
@@ -875,8 +875,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Hide if already granted
-        if (Notification.permission === 'granted') enableNotifsBtn.style.display = 'none';
+        // If already granted, show as Test Button instead of hiding
+        if (Notification.permission === 'granted') {
+            enableNotifsBtn.innerText = "🔔 Test Notification";
+            enableNotifsBtn.style.display = 'block';
+        }
     }
 
     if (payBtn) {
