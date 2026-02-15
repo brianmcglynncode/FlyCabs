@@ -296,6 +296,10 @@ body.driver-active .status-indicator {
     border-radius: 32px 32px 0 0;
     transform: translateY(100%);
     transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    /* Fix: Ensure it doesn't exceed viewport and scrolls if needed */
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .bottom-sheet.visible {
@@ -306,6 +310,10 @@ body.driver-active .status-indicator {
     padding: 32px;
     max-width: 500px;
     margin: 0 auto;
+    width: 100%;
+    /* Fix: Internal scroll for the content */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .handle {
