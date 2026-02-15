@@ -441,8 +441,7 @@ window.resetPassengerFlow = function () {
     window.updatePassengerUI('HOME');
 };
 
-    }
-};
+
 
 // --- Chat Logic ---
 window.pollChat = async function () {
@@ -588,7 +587,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.15";
+    const APP_VERSION = "23.0.16";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
