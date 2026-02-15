@@ -147,8 +147,8 @@ input:checked+.slider:before {
     -webkit-overflow-scrolling: touch;
     /* iOS Momentum */
     padding: 24px;
-    padding-bottom: 250px;
-    /* Double padding for better scroll */
+    padding-bottom: 300px;
+    /* Increased to prevent overlap with bottom sheet/nav */
     /* Ensure content isn't hidden behind footer */
     position: relative;
     height: 100%;

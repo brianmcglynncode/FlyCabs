@@ -378,11 +378,24 @@ window.updatePassengerUI = function (state, data = {}) {
                 waitingCard.style.display = ''; // Clear inline
                 waitingCard.classList.remove('hidden');
             }
+            // HIDE Request Modal
+            const reqModal = document.getElementById('request-modal');
+            if (reqModal) {
+                reqModal.classList.add('hidden');
+                reqModal.classList.remove('visible');
+            }
         } else if (state === 'ACCEPTED') {
             if (acceptedCard) {
                 acceptedCard.style.display = ''; // Clear inline
                 acceptedCard.classList.remove('hidden');
             }
+            // HIDE Request Modal
+            const reqModal = document.getElementById('request-modal');
+            if (reqModal) {
+                reqModal.classList.add('hidden');
+                reqModal.classList.remove('visible');
+            }
+
             const nameEl = document.getElementById('accepted-driver-name');
             if (nameEl && data.driverName) nameEl.textContent = data.driverName;
 
@@ -431,7 +444,8 @@ window.cancelRequest = async function () {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: window.FlyCabsState.currentRequestId })
             });
-            // SILENCED: alert("Request Cancelled.");
+            // Re-enable alert for feedback since user reported it "not working"
+            alert("Request Cancelled.");
             window.FlyCabsState.currentRequestId = null;
             window.updatePassengerUI('HOME');
         } catch (e) {
@@ -499,7 +513,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.3";
+    const APP_VERSION = "23.0.4";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
