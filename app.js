@@ -192,7 +192,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "20.1.0";
+    const APP_VERSION = "21.0.0";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     const data = await response.json();
                     const serverVersion = data.version;
-                    const localVersion = "19.0.0"; // MUST match APP_VERSION below
+                    const localVersion = APP_VERSION; // Fixed: Use dynamic variable
 
                     if (serverVersion !== localVersion) {
                         console.log(`[FlyCabs] Version mismatch! Server: ${serverVersion}, Local: ${localVersion}. Forcing reload...`);

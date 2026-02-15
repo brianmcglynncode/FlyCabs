@@ -47,10 +47,11 @@ body {
     position: relative;
     display: flex;
     flex-direction: column;
-    min-height: 100dvh;
-    /* Use dynamic viewport height for iOS */
+    height: 100dvh;
+    /* Fixed: Force exact viewport height */
+    overflow: hidden;
+    /* Fixed: Prevent body scroll, force internal scroll */
     box-shadow: 0 0 100px rgba(0, 0, 0, 0.1);
-    flex: 1;
 }
 
 /* Header */
@@ -143,8 +144,12 @@ input:checked+.slider:before {
 .content-surface {
     flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* iOS Momentum */
     padding: 24px;
     position: relative;
+    height: 100%;
+    /* Ensure it takes available space */
 }
 
 section {
