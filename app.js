@@ -1,5 +1,5 @@
 /**
- * FlyCabs Core Logic - Production v19 (Scroll Fix)
+ * FlyCabs Core Logic - Production v20 (Realtime & Stable)
  */
 
 // Global State
@@ -139,7 +139,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "17.0.0";
+    const APP_VERSION = "20.0.0";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');

@@ -7,6 +7,7 @@
         "start": "npx -y http-server . -p $PORT"
     },
     "dependencies": {
+        "express": "^5.2.1",
         "http-server": "^14.1.1"
     },
     "keywords": [

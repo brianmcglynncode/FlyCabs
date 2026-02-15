@@ -1,4 +1,4 @@
-const CACHE_NAME = 'flycabs-v18';
+const CACHE_NAME = 'flycabs-v20';
 const ASSETS = [
     './',
     './index.html',

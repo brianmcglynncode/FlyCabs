@@ -139,7 +139,7 @@
 
             <!-- Version Info (Hidden Troubleshooting) -->
             <div class="app-version-info">
-                <span>Version 19.0.0 (Scroll Fix)</span>
+                <span>Version 20.0.0 (Realtime Backend)</span>
                 <button onclick="window.nuclearReset()" class="reset-link">Reset App Data & Update</button>
             </div>
         </main>
@@ -221,8 +221,8 @@
     <!-- PWA Registration -->
     <script>
         if ('serviceWorker' in navigator) {
-            // Force fresh registration to break cache loops
-            navigator.serviceWorker.register('./sw.js?v=' + Date.now());
+            // Register SW normally - updates handled by app.js version polling
+            navigator.serviceWorker.register('./sw.js');
         }
     </script>
     <script src="app.js"></script>
