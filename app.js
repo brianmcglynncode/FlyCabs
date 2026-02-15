@@ -491,7 +491,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.12";
+    const APP_VERSION = "23.0.13";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -549,7 +549,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Modal background clicks
-    [broadcastModal, rosterModal, iosGuide].forEach(modal => {
+    // Modal background clicks (Only for Roster and Guide now)
+    [rosterModal, iosGuide].forEach(modal => {
         if (modal) {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) modal.classList.add('hidden');
