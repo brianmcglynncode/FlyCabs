@@ -9,7 +9,7 @@ window.FlyCabsState = {
     drivers: [],
     activeRequests: [],
     // Passenger Context
-    currentRequestId: null,
+    currentRequestId: localStorage.getItem('flycabs_request_id') || null,
     myPassengerName: localStorage.getItem('flycabs_passenger_name') || "Passenger " + Math.floor(Math.random() * 1000),
     // Identity
     myDriverId: localStorage.getItem('flycabs_id') || 'user-' + Math.random().toString(36).substr(2, 9),
@@ -465,6 +465,7 @@ window.cancelRequest = async function () {
             // Re-enable alert for feedback since user reported it "not working"
             alert("Request Cancelled.");
             window.FlyCabsState.currentRequestId = null;
+            localStorage.removeItem('flycabs_request_id');
             window.updatePassengerUI('HOME');
         } catch (e) {
             console.error("Failed to cancel:", e);
@@ -474,7 +475,18 @@ window.cancelRequest = async function () {
 
 window.resetPassengerFlow = function () {
     console.log("[FlyCabs] Resetting passenger flow (Trip Complete)");
-    window.FlyCabsState.currentRequestId = null; // THIS is where we clear it.
+    window.FlyCabsState.currentRequestId = null;
+    localStorage.removeItem('flycabs_request_id');
+
+    // Hide all cards explicitly
+    document.getElementById('passenger-waiting-card').classList.add('hidden');
+    document.getElementById('passenger-accepted-card').classList.add('hidden');
+    document.getElementById('request-modal').classList.remove('hidden');
+
+    // Clear Chat
+    const chatContainer = document.getElementById('passenger-chat-messages');
+    if (chatContainer) chatContainer.innerHTML = '';
+
     window.updatePassengerUI('HOME');
 };
 
@@ -689,7 +701,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.33";
+    const APP_VERSION = "23.0.34";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -727,6 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     window.FlyCabsState.currentRequestId = data.requestId;
+                    localStorage.setItem('flycabs_request_id', data.requestId);
 
                     // UI: Hide Form, Show Waiting
                     if (broadcastModal) broadcastModal.classList.add('hidden');
