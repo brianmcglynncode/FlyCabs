@@ -216,6 +216,57 @@ body.driver-active .status-indicator {
     box-shadow: 0 0 15px var(--success);
 }
 
+/* Driver Identity */
+.driver-identity-card {
+    background: white;
+    padding: 20px 24px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03);
+}
+
+.id-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+.id-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.id-row h3 {
+    font-size: 1.2rem;
+    color: var(--deep-night);
+    margin: 0;
+}
+
+.edit-btn {
+    background: var(--soft-gray);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.edit-btn:active {
+    background: #E2E8F0;
+    transform: scale(0.95);
+}
+
 /* Cards */
 .card-grid {
     display: flex;

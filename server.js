@@ -35,6 +35,32 @@ app.post('/api/driver/status', (req, res) => {
     res.json({ success: true, count: connectedDrivers.length });
 });
 
+// Request Management
+let activeRequests = [];
+
+// Get active requests
+app.get('/api/requests', (req, res) => {
+    res.json(activeRequests);
+});
+
+// Create a new request
+app.post('/api/request', (req, res) => {
+    const { from, to, price, passengerId } = req.body; // passengerId optional for now
+    activeRequests.push({ from, to, price, timestamp: Date.now() });
+    console.log(`[Server] New Request: ${from} -> ${to} (€${price})`);
+    res.json({ success: true, count: activeRequests.length });
+});
+
+// Accept/Remove a request (simplistic: remove by index or matching props)
+app.post('/api/request/accept', (req, res) => {
+    const { index } = req.body;
+    if (index >= 0 && index < activeRequests.length) {
+        const removed = activeRequests.splice(index, 1);
+        console.log(`[Server] Request Accepted/Removed: ${removed[0].from} -> ${removed[0].to}`);
+    }
+    res.json({ success: true });
+});
+
 // Fallback for SPA
 // Fallback for SPA
 app.use((req, res) => {

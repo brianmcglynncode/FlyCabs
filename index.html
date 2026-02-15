@@ -109,6 +109,14 @@
 
             <!-- Driver View -->
             <section id="view-driver">
+                <div class="driver-identity-card">
+                    <span class="id-label">Driver Profile</span>
+                    <div class="id-row">
+                        <h3 id="current-driver-name">Loading...</h3>
+                        <button class="edit-btn" onclick="window.editDriverName()">✏️</button>
+                    </div>
+                </div>
+
                 <div class="driver-status-card">
                     <div class="status-indicator" id="status-bulb"></div>
                     <h2 id="driver-status-text">You are Offline</h2>
@@ -139,7 +147,7 @@
 
             <!-- Version Info (Hidden Troubleshooting) -->
             <div class="app-version-info">
-                <span>Version 21.0.0 (Stable Scroll)</span>
+                <span>Version 21.2.0 (Live Requests)</span>
                 <button onclick="window.nuclearReset()" class="reset-link">Reset App Data & Update</button>
             </div>
         </main>

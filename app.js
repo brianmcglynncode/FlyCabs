@@ -34,6 +34,8 @@ window.updateView = function () {
         viewPassenger.classList.remove('active');
         viewDriver.classList.add('active');
         document.body.classList.add('driver-mode');
+        const nameEl = document.getElementById('current-driver-name');
+        if (nameEl) nameEl.textContent = window.FlyCabsState.myDriverName;
     } else {
         modeText.textContent = "Passenger Mode";
         viewPassenger.classList.add('active');
@@ -84,6 +86,40 @@ window.toggleDriverStatus = async function () {
     window.renderRequests();
 };
 
+window.editDriverName = async function () {
+    const currentName = window.FlyCabsState.myDriverName;
+    const newName = prompt("Update your Driver Name:", currentName.startsWith("Driver ") ? "" : currentName);
+
+    if (newName && newName.trim() !== "") {
+        // 1. Update State & Storage
+        window.FlyCabsState.myDriverName = newName.trim();
+        localStorage.setItem('flycabs_name', window.FlyCabsState.myDriverName);
+
+        // 2. Update UI
+        const nameEl = document.getElementById('current-driver-name');
+        if (nameEl) nameEl.textContent = window.FlyCabsState.myDriverName;
+
+        // 3. Sync with Server (if online)
+        if (window.FlyCabsState.isDriverActive) {
+            try {
+                await fetch('/api/driver/status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: window.FlyCabsState.myDriverId,
+                        name: window.FlyCabsState.myDriverName,
+                        car: "Local Driver",
+                        active: true
+                    })
+                });
+                window.fetchDrivers(); // Refresh roster
+            } catch (e) {
+                console.error("Failed to sync name update:", e);
+            }
+        }
+    }
+};
+
 window.fetchDrivers = async function () {
     try {
         const res = await fetch('/api/drivers');
@@ -96,8 +132,11 @@ window.fetchDrivers = async function () {
     }
 };
 
-// Poll for drivers every 5 seconds
-setInterval(window.fetchDrivers, 5000);
+// Poll for drivers and requests every 3 seconds (faster for demo)
+setInterval(() => {
+    window.fetchDrivers();
+    if (window.FlyCabsState.isDriverActive) window.fetchRequests();
+}, 3000);
 // Initial fetch
 window.fetchDrivers();
 
@@ -127,6 +166,18 @@ window.showDriverRoster = function () {
     rosterModal.classList.remove('hidden');
 };
 
+window.fetchRequests = async function () {
+    try {
+        const res = await fetch('/api/requests');
+        if (res.ok) {
+            window.FlyCabsState.activeRequests = await res.json();
+            window.renderRequests();
+        }
+    } catch (e) {
+        console.error("Failed to fetch requests:", e);
+    }
+};
+
 window.renderRequests = function () {
     const requestList = document.getElementById('request-list');
     if (!requestList) return;
@@ -153,11 +204,21 @@ window.renderRequests = function () {
     `).join('');
 };
 
-window.acceptRequest = function (index) {
+window.acceptRequest = async function (index) {
     const req = window.FlyCabsState.activeRequests[index];
-    alert(`Accepted lift from ${req.from} to ${req.to} for €${req.price}! Connecting...`);
-    window.FlyCabsState.activeRequests.splice(index, 1);
-    window.renderRequests();
+    if (confirm(`Accept lift for €${req.price}?`)) {
+        try {
+            await fetch('/api/request/accept', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ index })
+            });
+            alert(`Lift Accepted! Head to ${req.from}.`);
+            window.fetchRequests();
+        } catch (e) {
+            console.error("Failed to accept request:", e);
+        }
+    }
 };
 
 // Nuclear Reset: Clear SW and Caches to force update on iOS
@@ -192,7 +253,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "21.0.0";
+    const APP_VERSION = "21.2.0";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -208,14 +269,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (statusBulb) statusBulb.closest('.driver-status-card').addEventListener('click', window.toggleDriverStatus);
 
     if (sendBroadcastBtn) {
-        sendBroadcastBtn.addEventListener('click', () => {
+        sendBroadcastBtn.addEventListener('click', async () => {
             const price = document.getElementById('suggested-price').value || "15.00";
             const fromLoc = document.getElementById('request-from').value || "Current Location";
             const toLoc = document.getElementById('request-to').value || "Destination";
 
-            window.FlyCabsState.activeRequests.push({ price, from: fromLoc, to: toLoc });
-            alert(`Requesting a lift from ${fromLoc} to ${toLoc} (€${price})!`);
-            if (broadcastModal) broadcastModal.classList.add('hidden');
+            // Optimistic Update (Optional, but let's wait for server to be safe)
+            try {
+                await fetch('/api/request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from: fromLoc, to: toLoc, price })
+                });
+                alert(`Requesting a lift from ${fromLoc} to ${toLoc} (€${price})!`);
+                if (broadcastModal) broadcastModal.classList.add('hidden');
+                window.fetchRequests(); // Trigger immediate update
+            } catch (e) {
+                console.error("Failed to send request:", e);
+                alert("Failed to send request. Check connection.");
+            }
         });
     }
 
