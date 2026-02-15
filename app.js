@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sendBroadcastBtn.addEventListener('click', () => {
             const price = document.getElementById('suggested-price').value || "15.00";
             window.FlyCabsState.activeRequests.push({ price });
-            alert(`Broadcasting your lift request (€${price}) to all online drivers!`);
+            alert(`Requesting a lift (€${price}) from all online drivers!`);
             broadcastModal.classList.add('hidden');
         });
     }
