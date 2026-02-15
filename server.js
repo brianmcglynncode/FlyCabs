@@ -130,6 +130,20 @@ app.post('/api/request/accept', (req, res) => {
     }
 });
 
+// Complete a request (Driver side)
+app.post('/api/request/complete', (req, res) => {
+    const { id } = req.body;
+    const request = activeRequests.find(r => r.id === id);
+
+    if (request) {
+        request.status = 'completed';
+        console.log(`[Server] Request ${id} COMPLETED`);
+        res.json({ success: true });
+    } else {
+        res.json({ success: false });
+    }
+});
+
 // Cancel a request (Passenger side)
 app.post('/api/request/cancel', (req, res) => {
     const { id } = req.body;
