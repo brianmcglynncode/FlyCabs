@@ -7,11 +7,8 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, '.')));
 
 // In-memory driver state (resets on restart, which is fine for demo)
-let connectedDrivers = [
-    // Pre-populate with our favorite bots for the empty state
-    { id: 'bot-1', name: "Peadar (Bot)", car: "Tesla Model 3", active: true },
-    { id: 'bot-2', name: "Niamh (Bot)", car: "VW ID.4", active: true }
-];
+// In-memory driver state (resets on restart, which is fine for demo)
+let connectedDrivers = [];
 
 // Get all active drivers
 app.get('/api/drivers', (req, res) => {
@@ -26,7 +23,8 @@ app.post('/api/driver/status', (req, res) => {
     connectedDrivers = connectedDrivers.filter(d => d.id !== id);
 
     if (active) {
-        connectedDrivers.push({ id, name, car, active });
+        // Store name, car, and pic
+        connectedDrivers.push({ id, name, car, pic: req.body.pic, active });
         console.log(`[Server] Driver ${name} is ONLINE`);
     } else {
         console.log(`[Server] Driver ${name} is OFFLINE`);

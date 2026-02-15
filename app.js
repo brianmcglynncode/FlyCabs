@@ -212,6 +212,7 @@ window.toggleDriverStatus = async function () {
                 id: window.FlyCabsState.myDriverId,
                 name: window.FlyCabsState.myDriverName,
                 car: "Local Driver",
+                pic: window.FlyCabsState.myDriverPic, // Send Pic!
                 active: window.FlyCabsState.isDriverActive
             })
         });
@@ -246,6 +247,7 @@ window.editDriverName = async function () {
                         id: window.FlyCabsState.myDriverId,
                         name: window.FlyCabsState.myDriverName,
                         car: "Local Driver",
+                        pic: window.FlyCabsState.myDriverPic,
                         active: true
                     })
                 });
@@ -295,15 +297,33 @@ window.showDriverRoster = function () {
 
     if (!rosterList || !rosterModal) return;
 
-    rosterList.innerHTML = activeDrivers.map(d => `
+    rosterList.innerHTML = activeDrivers.map(d => {
+        // Driver ID might be used for caching or checks
+        // Currently we don't store driverPic in connectedDrivers on server, 
+        // effectively only 'local' drivers would have it if we synced it.
+        // For now, we'll try to use d.pic if available (requires server update to store it)
+        // OR fallback.
+
+        // Wait, the /api/driver/status endpoint needs to ACCEPT 'pic'.
+        // Let's assume for this specific request we just want to SHOW it in UI if present.
+        // We need to ensure the register/update loop sends it.
+
+        // Since we didn't add 'pic' to the /api/driver/status payload yet, this might remain empty 
+        // unless we fix that path too. But let's add the UI logic first.
+
+        let picHtml = `<div class="roster-avatar">👤</div>`;
+        // If we had a pic property: 
+        // if(d.pic) picHtml = `<div class="roster-avatar" style="background-image:url('${d.pic}'); background-size:cover; color:transparent;"></div>`;
+
+        return `
         <div class="roster-item">
-            <div class="roster-avatar">👤</div>
+            ${picHtml}
             <div class="roster-info">
                 <strong>${d.name}</strong>
                 <span>${d.car}</span>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 
     rosterModal.classList.remove('hidden');
 };
@@ -587,7 +607,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.17";
+    const APP_VERSION = "23.0.18";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
