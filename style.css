@@ -314,6 +314,10 @@ body.driver-active .status-indicator {
     /* Fix: Internal scroll for the content */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    height: 100%;
+    /* Ensure it fills the shell */
+    padding-bottom: 50px;
+    /* Safe space for bottom */
 }
 
 .handle {
@@ -321,7 +325,8 @@ body.driver-active .status-indicator {
     height: 4px;
     background: #E2E8F0;
     border-radius: 2px;
-    margin: -16px auto 32px;
+    margin: 0 auto 20px;
+    flex-shrink: 0;
 }
 
 /* Bottom Nav */

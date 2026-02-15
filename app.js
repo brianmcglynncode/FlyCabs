@@ -11,9 +11,11 @@ window.FlyCabsState = {
     // Passenger Context
     currentRequestId: null,
     myPassengerName: localStorage.getItem('flycabs_passenger_name') || "Passenger " + Math.floor(Math.random() * 1000),
-    // Persist Identity: Get existing ID or generate new one
+    // Identity
     myDriverId: localStorage.getItem('flycabs_id') || 'user-' + Math.random().toString(36).substr(2, 9),
-    myDriverName: localStorage.getItem('flycabs_name') || "Driver " + Math.floor(Math.random() * 1000)
+    myDriverName: localStorage.getItem('flycabs_name') || "Driver " + Math.floor(Math.random() * 1000),
+    myDriverPic: localStorage.getItem('flycabs_driver_pic') || null, // Base64
+    myPassengerPic: localStorage.getItem('flycabs_passenger_pic') || null // Base64
 };
 
 // Save ID immediately if new
@@ -22,6 +24,86 @@ if (!localStorage.getItem('flycabs_id')) {
     localStorage.setItem('flycabs_name', window.FlyCabsState.myDriverName);
     localStorage.setItem('flycabs_passenger_name', window.FlyCabsState.myPassengerName);
 }
+
+// --- GPS Logic ---
+window.useGPS = function () {
+    const fromInput = document.getElementById('request-from');
+    if (!navigator.geolocation) {
+        alert("GPS not supported");
+        return;
+    }
+    fromInput.placeholder = "Locating...";
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            fromInput.value = "Current Location"; // Mock for speed
+            // fromInput.value = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+        },
+        (err) => {
+            alert("GPS Error: " + err.message);
+            fromInput.placeholder = "Current Location";
+        }
+    );
+};
+
+// --- Profile Upload Logic ---
+window.handleProfileUpload = function (input, type) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const base64 = e.target.result;
+            if (type === 'driver') {
+                window.FlyCabsState.myDriverPic = base64;
+                localStorage.setItem('flycabs_driver_pic', base64);
+                window.updateProfileDisplays();
+            } else {
+                window.FlyCabsState.myPassengerPic = base64;
+                localStorage.setItem('flycabs_passenger_pic', base64);
+                window.updateProfileDisplays();
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+};
+
+window.editDriverProfile = function () {
+    const nameStr = prompt("Edit Driver Name:", window.FlyCabsState.myDriverName);
+    if (nameStr) {
+        window.FlyCabsState.myDriverName = nameStr;
+        localStorage.setItem('flycabs_name', nameStr);
+        window.updateProfileDisplays();
+    }
+    if (confirm("Update Profile Picture as well?")) {
+        const fileInput = document.getElementById('driver-file-input');
+        if (fileInput) fileInput.click();
+    }
+};
+
+window.updateProfileDisplays = function () {
+    // Driver Pic
+    const dPreview = document.getElementById('driver-profile-preview');
+    if (dPreview) {
+        dPreview.style.backgroundImage = window.FlyCabsState.myDriverPic ? `url(${window.FlyCabsState.myDriverPic})` : '';
+        dPreview.textContent = window.FlyCabsState.myDriverPic ? '' : '📷';
+        // Ensure flex centering for the emoji
+        dPreview.style.display = 'flex';
+        dPreview.style.alignItems = 'center';
+        dPreview.style.justifyContent = 'center';
+    }
+    const dName = document.getElementById('current-driver-name');
+    if (dName) dName.textContent = window.FlyCabsState.myDriverName;
+
+    // Passenger Pic
+    const pPreview = document.getElementById('passenger-profile-preview');
+    if (pPreview) {
+        pPreview.style.backgroundImage = window.FlyCabsState.myPassengerPic ? `url(${window.FlyCabsState.myPassengerPic})` : '';
+        pPreview.textContent = window.FlyCabsState.myPassengerPic ? '' : '📷';
+        pPreview.style.display = 'flex';
+        pPreview.style.alignItems = 'center';
+        pPreview.style.justifyContent = 'center';
+    }
+    const pName = document.getElementById('passenger-welcome-name');
+    if (pName) pName.textContent = `Hi, ${window.FlyCabsState.myPassengerName}`;
+};
 
 // ... global logic ...
 
@@ -54,16 +136,24 @@ window.renderRequests = function () {
         return;
     }
 
-    requestList.innerHTML = othersRequests.map((req, index) => `
+    requestList.innerHTML = othersRequests.map((req, index) => {
+        const picHtml = req.passengerPic ?
+            `<div style="width:40px; height:40px; border-radius:50%; background-image:url(${req.passengerPic}); background-size:cover; flex-shrink:0;"></div>` :
+            `<div style="width:40px; height:40px; border-radius:50%; background:#ddd; display:flex; align-items:center; justify-content:center; flex-shrink:0;">👤</div>`;
+
+        return `
         <div class="card request-card" style="background: #F5F7FA; padding: 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 15px;">
-            <div class="user-info">
-                <strong>${req.passengerName || 'Passenger'}</strong><br>
-                <span>${req.from} → ${req.to}</span>
+            <div class="user-info" style="display:flex; gap:12px; align-items:center;">
+                ${picHtml}
+                <div>
+                    <strong>${req.passengerName || 'Passenger'}</strong><br>
+                    <span style="font-size:0.85rem; color:#666;">${req.from} → ${req.to}</span>
+                </div>
             </div>
-            <div class="bid-amount" style="margin: 10px 0; color: #1A1A2E; font-weight: 700;">Suggested: €${req.price}</div>
+            <div class="bid-amount" style="margin: 10px 0 10px 52px; color: #1A1A2E; font-weight: 700;">Suggested: €${req.price}</div>
             <button class="primary-btn" onclick="window.acceptRequest(${index})" style="padding: 10px;">Accept Lift</button>
         </div>
-    `).join('');
+    `}).join('');
 };
 
 // Global Logic
@@ -289,6 +379,19 @@ window.updatePassengerUI = function (state, data = {}) {
             }
             const nameEl = document.getElementById('accepted-driver-name');
             if (nameEl && data.driverName) nameEl.textContent = data.driverName;
+
+            // Driver Pic
+            const picEl = document.getElementById('accepted-driver-pic');
+            if (picEl) {
+                if (data.driverPic) {
+                    picEl.style.backgroundImage = `url(${data.driverPic})`;
+                    picEl.style.backgroundSize = 'cover';
+                    picEl.textContent = '';
+                } else {
+                    picEl.style.backgroundImage = '';
+                    picEl.textContent = '🚕';
+                }
+            }
         }
     } catch (e) {
         console.error("[FlyCabs] UI Update Failed:", e);
@@ -322,7 +425,7 @@ window.cancelRequest = async function () {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: window.FlyCabsState.currentRequestId })
             });
-            alert("Request Cancelled.");
+            // SILENCED: alert("Request Cancelled.");
             window.FlyCabsState.currentRequestId = null;
             window.updatePassengerUI('HOME');
         } catch (e) {
@@ -346,7 +449,8 @@ window.acceptRequest = async function (index) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     id: req.id, // Use actual ID
-                    driverName: window.FlyCabsState.myDriverName
+                    driverName: window.FlyCabsState.myDriverName,
+                    driverPic: window.FlyCabsState.myDriverPic
                 })
             });
             alert(`Lift Accepted! Head to ${req.from}.`);
@@ -389,7 +493,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "22.2.0";
+    const APP_VERSION = "23.0.0";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
@@ -419,7 +523,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         to: toLoc,
                         price,
                         passengerId: window.FlyCabsState.myDriverId, // Reuse ID as user ID
-                        passengerName: window.FlyCabsState.myPassengerName
+                        passengerName: window.FlyCabsState.myPassengerName,
+                        passengerPic: window.FlyCabsState.myPassengerPic
                     })
                 });
                 const data = await res.json();
@@ -431,10 +536,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (broadcastModal) broadcastModal.classList.add('hidden');
                     window.updatePassengerUI('WAITING');
 
-                    alert(`Request sent! Waiting for drivers...`);
+                    // SILENCED: alert(`Request sent! Waiting for drivers...`);
                 }
             } catch (e) {
                 console.error("Failed to send request:", e);
+                // Keep error alert
                 alert("Failed to send request. Check connection.");
             }
         });
@@ -555,8 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.updateView();
 
     // Init Passenger Name
-    const pNameEl = document.getElementById('passenger-welcome-name');
-    if (pNameEl) pNameEl.textContent = `Hi, ${window.FlyCabsState.myPassengerName}`;
+    window.updateProfileDisplays();
 
     // Auto-Restore Online Status if needed
     if (window.FlyCabsState.isDriverActive) {

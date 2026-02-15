@@ -45,7 +45,7 @@ app.get('/api/requests', (req, res) => {
 
 // Create a new request
 app.post('/api/request', (req, res) => {
-    const { from, to, price, passengerId, passengerName } = req.body;
+    const { from, to, price, passengerId, passengerName, passengerPic } = req.body;
     const newRequest = {
         id: Date.now().toString(), // Simple ID
         from,
@@ -53,6 +53,7 @@ app.post('/api/request', (req, res) => {
         price,
         passengerId,
         passengerName,
+        passengerPic,
         status: 'pending',
         driverName: null,
         timestamp: Date.now()
@@ -72,7 +73,7 @@ app.get('/api/request/:id/status', (req, res) => {
     const reqId = req.params.id;
     const request = activeRequests.find(r => r.id === reqId);
     if (request) {
-        res.json({ status: request.status, driverName: request.driverName });
+        res.json({ status: request.status, driverName: request.driverName, driverPic: request.driverPic });
     } else {
         res.json({ status: 'not_found' });
     }
@@ -80,12 +81,13 @@ app.get('/api/request/:id/status', (req, res) => {
 
 // Accept a request
 app.post('/api/request/accept', (req, res) => {
-    const { id, driverName } = req.body;
+    const { id, driverName, driverPic } = req.body;
     const request = activeRequests.find(r => r.id === id);
 
     if (request && request.status === 'pending') {
         request.status = 'accepted';
         request.driverName = driverName;
+        request.driverPic = driverPic;
         console.log(`[Server] Request ${id} accepted by ${driverName}`);
         res.json({ success: true });
     } else {

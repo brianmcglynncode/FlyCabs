@@ -43,9 +43,18 @@
             <section id="view-passenger" class="active">
                 <div class="hero-section">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <h1 id="passenger-welcome-name" style="margin:0; font-size:1.8rem;">Hi, Passenger</h1>
+                        <div style="display:flex; align-items:center; gap: 12px;">
+                            <div id="passenger-profile-preview"
+                                onclick="document.getElementById('passenger-file-input').click()"
+                                style="width: 50px; height: 50px; background: #eee; border-radius: 50%; background-size: cover; background-position: center; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center;">
+                                📷</div>
+                            <h1 id="passenger-welcome-name" style="margin:0; font-size:1.8rem;">Hi, Passenger</h1>
+                        </div>
                         <button class="edit-btn" onclick="window.editPassengerName()">✏️</button>
                     </div>
+                    <!-- Hidden File Input -->
+                    <input type="file" id="passenger-file-input" accept="image/*" style="display: none;"
+                        onchange="window.handleProfileUpload(this, 'passenger')">
                     <p>Request a lift from your trusted circle.</p>
                 </div>
 
@@ -74,7 +83,9 @@
                 <!-- Driver Found State -->
                 <div id="passenger-accepted-card" class="card status-card hidden"
                     style="text-align:center; padding: 40px 20px; background: #E8F8F5;">
-                    <div style="font-size: 3rem; margin-bottom: 10px;">🚕</div>
+                    <div id="accepted-driver-pic" class="driver-avatar-large"
+                        style="width: 80px; height: 80px; margin: 0 auto 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; background: rgba(255,255,255,0.5);">
+                        🚕</div>
                     <h3 style="color: var(--success);">Driver on the way!</h3>
                     <p id="accepted-driver-name" style="font-weight: 700; font-size: 1.2rem; margin: 10px 0;">Driver
                         Name</p>
@@ -109,8 +120,7 @@
                             <label>From</label>
                             <div class="location-input-row">
                                 <input type="text" id="request-from" placeholder="Current Location">
-                                <button class="home-btn"
-                                    onclick="document.getElementById('request-from').value = 'HOME'">🏠 HOME</button>
+                                <button class="home-btn" onclick="window.useGPS()">📍 GPS</button>
                             </div>
                         </div>
 
@@ -142,11 +152,19 @@
             <!-- Driver View -->
             <section id="view-driver">
                 <div class="driver-identity-card">
-                    <span class="id-label">Driver Profile</span>
+                    <div id="driver-profile-preview"
+                        style="width: 60px; height: 60px; background: #eee; border-radius: 50%; background-size: cover; background-position: center; margin: 0 auto 10px; display:flex; align-items:center; justify-content:center;">
+                        📷</div>
                     <div class="id-row">
-                        <h3 id="current-driver-name">Loading...</h3>
-                        <button class="edit-btn" onclick="window.editDriverName()">✏️</button>
+                        <div>
+                            <div class="id-label">Driver Name</div>
+                            <h3 id="current-driver-name">Loading...</h3>
+                        </div>
+                        <button class="edit-btn" onclick="window.editDriverProfile()">✏️</button>
                     </div>
+                    <!-- Hidden File Input -->
+                    <input type="file" id="driver-file-input" accept="image/*" style="display: none;"
+                        onchange="window.handleProfileUpload(this, 'driver')">
                 </div>
 
                 <div class="driver-status-card">
@@ -179,7 +197,7 @@
 
             <!-- Version Info (Hidden Troubleshooting) -->
             <div class="app-version-info">
-                <span>Version 22.2.0 (Icon Refresh)</span>
+                <span>Version 23.0.0 (Profiles & GPS)</span>
                 <button onclick="window.nuclearReset()" class="reset-link">Reset App Data & Update</button>
             </div>
         </main>
