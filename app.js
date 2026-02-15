@@ -271,14 +271,17 @@ window.fetchDrivers = async function () {
     }
 };
 
-// Poll for drivers and requests every 3 seconds (faster for demo)
+// Poll for drivers and requests
 setInterval(() => {
     window.fetchDrivers();
     if (window.FlyCabsState.isDriverActive) window.fetchRequests();
+
+    // CRITICAL FIX: Always check request status if we have an ID
+    // This ensures we catch 'accepted' -> 'completed' transitions
     if (window.FlyCabsState.currentRequestId) {
-        window.checkRequestStatus(); // Passenger Check
+        window.checkRequestStatus();
     }
-}, 3000);
+}, 2000); // Increased frequency to 2s for better responsiveness
 
 // Dedicated Chat Poller (Faster: 1s)
 setInterval(() => {
@@ -686,7 +689,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.32";
+    const APP_VERSION = "23.0.33";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');
