@@ -512,7 +512,7 @@ window.nuclearReset = async function () {
 
 // Main Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    const APP_VERSION = "23.0.5";
+    const APP_VERSION = "23.0.6";
     console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
     const roleToggle = document.getElementById('role-toggle');

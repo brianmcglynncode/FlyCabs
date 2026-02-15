@@ -3,7 +3,7 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 8080;
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, '.')));
 
 // In-memory driver state (resets on restart, which is fine for demo)
