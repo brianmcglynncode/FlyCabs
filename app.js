@@ -2,7 +2,7 @@
  * FlyCabs Core Logic - Robust v13
  */
 
-const APP_VERSION = "13.0.0";
+const APP_VERSION = "15.0.0";
 console.log(`[FlyCabs] Initializing version ${APP_VERSION}`);
 
 // Global State
@@ -44,6 +44,8 @@ window.updateView = function () {
 window.toggleDriverStatus = function () {
     window.FlyCabsState.isDriverActive = !window.FlyCabsState.isDriverActive;
     const statusText = document.getElementById('driver-status-text');
+    const statusBulb = document.getElementById('status-bulb');
+
     document.body.classList.toggle('driver-active', window.FlyCabsState.isDriverActive);
     if (statusText) statusText.textContent = window.FlyCabsState.isDriverActive ? "You are Online" : "You are Offline";
     window.renderRequests();
@@ -92,8 +94,8 @@ window.renderRequests = function () {
     requestList.innerHTML = window.FlyCabsState.activeRequests.map((req, index) => `
         <div class="card request-card" style="background: #F5F7FA; padding: 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 15px;">
             <div class="user-info">
-                <strong>Passenger Request</strong><br>
-                <span>Broadcast to all drivers</span>
+                <strong>${req.from} → ${req.to}</strong><br>
+                <span>Passenger Request</span>
             </div>
             <div class="bid-amount" style="margin: 10px 0; color: #1A1A2E; font-weight: 700;">Suggested: €${req.price}</div>
             <button class="primary-btn" onclick="window.acceptRequest(${index})" style="padding: 10px;">Accept Lift</button>
@@ -103,7 +105,7 @@ window.renderRequests = function () {
 
 window.acceptRequest = function (index) {
     const req = window.FlyCabsState.activeRequests[index];
-    alert(`You accepted the lift request for €${req.price}! Connecting you to passenger...`);
+    alert(`Accepted lift from ${req.from} to ${req.to} for €${req.price}! Connecting...`);
     window.FlyCabsState.activeRequests.splice(index, 1);
     window.renderRequests();
 };
@@ -125,8 +127,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sendBroadcastBtn) {
         sendBroadcastBtn.addEventListener('click', () => {
             const price = document.getElementById('suggested-price').value || "15.00";
-            window.FlyCabsState.activeRequests.push({ price });
-            alert(`Requesting a lift (€${price}) from all online drivers!`);
+            const fromLoc = document.getElementById('request-from').value || "Current Location";
+            const toLoc = document.getElementById('request-to').value || "Destination";
+
+            window.FlyCabsState.activeRequests.push({ price, from: fromLoc, to: toLoc });
+            alert(`Requesting a lift from ${fromLoc} to ${toLoc} (€${price})!`);
             if (broadcastModal) broadcastModal.classList.add('hidden');
         });
     }
@@ -179,10 +184,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Integrations Fix (Re-added with direct selectors)
+    const inviteBtn = document.getElementById('whatsapp-invite');
+    const payBtn = document.getElementById('payment-btn');
+
+    if (inviteBtn) {
+        inviteBtn.onclick = () => {
+            console.log("[FlyCabs] WhatsApp Invite triggered");
+            window.open(`https://wa.me/?text=${encodeURIComponent("Hey! Join my trusted circle on FlyCabs for lifts.")}`, '_blank');
+        };
+    }
+
+    if (payBtn) {
+        payBtn.onclick = () => {
+            console.log("[FlyCabs] Revolut Payment triggered");
+            window.open(`https://revolut.me/flycabs-demo`, '_blank');
+        };
+    }
+
     // SW Update Logic
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-            console.log("[FlyCabs] New SW detected. Force reloading...");
             window.location.reload();
         });
     }

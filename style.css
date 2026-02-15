@@ -512,6 +512,46 @@ body.is-ios .install-trigger-btn {
     color: var(--sky-blue);
 }
 
+/* Location Input Styles */
+.location-group {
+    margin-bottom: 20px;
+}
+
+.location-input-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.location-input-row input {
+    flex: 1;
+    padding: 15px;
+    background: var(--soft-gray);
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--deep-night);
+    outline: none;
+}
+
+.home-btn {
+    padding: 0 15px;
+    background: white;
+    border: 1px solid rgba(163, 216, 244, 0.4);
+    border-radius: 12px;
+    color: var(--sky-blue);
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+    white-space: nowrap;
+}
+
+.home-btn:active {
+    transform: scale(0.95);
+}
+
 
 /* Broadcast Experience */
 .available-drivers-summary {

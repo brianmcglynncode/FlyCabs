@@ -67,12 +67,30 @@
                     </div>
                 </div>
 
-                <!-- Broadcast Request Modal -->
+                <!-- Enhanced Request Modal -->
                 <div id="request-modal" class="bottom-sheet hidden">
                     <div class="sheet-content">
                         <div class="handle"></div>
                         <h2>Request a Lift</h2>
-                        <p class="sheet-sub">Specify your price for the lift.</p>
+
+                        <div class="input-group location-group">
+                            <label>From</label>
+                            <div class="location-input-row">
+                                <input type="text" id="request-from" placeholder="Current Location">
+                                <button class="home-btn"
+                                    onclick="document.getElementById('request-from').value = 'HOME'">🏠 HOME</button>
+                            </div>
+                        </div>
+
+                        <div class="input-group location-group">
+                            <label>To</label>
+                            <div class="location-input-row">
+                                <input type="text" id="request-to" placeholder="Where to?">
+                                <button class="home-btn"
+                                    onclick="document.getElementById('request-to').value = 'HOME'">🏠 HOME</button>
+                            </div>
+                        </div>
+
                         <div class="input-group">
                             <label>Suggest a Price</label>
                             <div class="price-input">
